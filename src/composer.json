@@ -40,7 +40,7 @@
 		"phpsniff:default" : "vendor/bin/phpcs inc -v",
 		"phpsniff:PSR12" : "vendor/bin/phpcs inc -v --standard='PSR12'",
 		"phpsniff:PSR2" : "vendor/bin/phpcs inc -v --standard='PSR2'",
-		"phpsniff:WP" : "vendor/bin/phpcs inc/Abstracts -v --standard='WordPress'",
+		"phpsniff:WP" : "vendor/bin/phpcs inc/Abstracts -v --standard='WordPress'"
     },
 	"extra": {
 		"wpify-scoper": {
