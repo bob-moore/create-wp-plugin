@@ -17,6 +17,6 @@
         ],
         "post-create-project-cmd" : [
 			"bash ./installers/post-install.sh"
-		],
+		]
     }
 }
