@@ -29,6 +29,11 @@ install_composer_namespace(
 
 create_plugin_file( $args );
 
+replace_inc_namespace( 
+    $args, 
+    dirname( __DIR__, 1 ) . '/inc/*'
+);
+
 /**
  * Replace namespace string in composer.json file
  *
@@ -39,7 +44,7 @@ create_plugin_file( $args );
 function install_composer_namespace( string $namespace, string $name, string $description ): void
 {
     $dir = dirname( __DIR__, 1 );
-    $composer = json_decode( file_get_contents( $dir . '/src/composer.json' ), true );
+    $composer = json_decode( file_get_contents( $dir . '/composer.json' ), true );
     
     $composer['name'] = $name;
 
@@ -58,7 +63,7 @@ function create_plugin_file( array $args ): void
 {
     $dir = dirname( __DIR__, 1 );
     
-    $content = file_get_contents( $dir . '/src/plugin.php' );
+    $content = file_get_contents( $dir . '/plugin.php' );
 
     foreach ( $args as $key => $value ) {
         $content = str_replace( '%' . $key . '%', $value, $content );
@@ -75,12 +80,12 @@ function create_plugin_file( array $args ): void
  *
  * @return void
  */
-function replace_inc_namespace( string $namespace, string $path = 'inc/*' ): void
+function replace_inc_namespace( array $args, string $path = 'inc/*' ): void
 {
     foreach ( glob( $path ) as $filename )
     {
         if ( is_dir( $filename ) ) {
-            replace_inc_namespace( $namespace, $filename . '/*' );
+            replace_inc_namespace( $args, $filename . '/*' );
         }
         if ( ! is_file( $filename ) ) {
             continue;
@@ -88,8 +93,13 @@ function replace_inc_namespace( string $namespace, string $path = 'inc/*' ): voi
         if ( ! str_contains( $filename, '.php' ) ) {
             continue;
         }
+        
         $content = file_get_contents( $filename );
-        $content = str_replace( "Mwf\\Theme", $namespace , $content );
+        
+        foreach ( $args as $key => $value ) {
+            $content = str_replace( '%' . $key . '%', $value, $content );
+        }
+        
         file_put_contents( $filename, $content );
     }
 }

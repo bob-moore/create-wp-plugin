@@ -11,10 +11,10 @@
  * @since   1.0.0
  */
 
-namespace Mwf\Theme\Providers;
+namespace %namespace%\Providers;
 
-use Mwf\Theme\Deps\Mwf\WPCore,
-	Mwf\Theme\Deps\Mwf\WPCore\DI\OnMount;
+use %namespace%\Deps\Devkit\WPCore,
+	%namespace%\Deps\Devkit\WPCore\DI\OnMount;
 
 /**
  * Class for interacting with astra directly

@@ -20,7 +20,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Mwf\\Theme\\" : "inc"
+			"Devkit\\Plugin\\" : "inc"
 		}
 	},
 	"require-dev": {
@@ -41,17 +41,10 @@
 		"phpsniff:PSR12" : "vendor/bin/phpcs inc -v --standard='PSR12'",
 		"phpsniff:PSR2" : "vendor/bin/phpcs inc -v --standard='PSR2'",
 		"phpsniff:WP" : "vendor/bin/phpcs inc/Abstracts -v --standard='WordPress'",
-        "post-root-package-install" : [
-            "bash ./install/install.sh"
-        ],
-		"post-create-project-cmd" : [
-			"bash ./install/post-install.sh"
-		],
-        "test": "bash ./install/install.sh"
     },
 	"extra": {
 		"wpify-scoper": {
-			"prefix": "Mwf\\Theme\\Deps",
+			"prefix": "Devkit\\Plugin\\Deps",
 			"folder": "deps",
 			"globals": [
 			  "wordpress",
@@ -59,7 +52,7 @@
 			],
 			"composerjson": "composer-deps.json",
 			"composerlock": "composer-deps.lock",
-			"autorun": false
+			"autorun": true
 		}
 	}
 }

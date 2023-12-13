@@ -6,6 +6,3 @@ parameters:
 	paths:
 		- ../../inc
 	scanDirectories:
-		- ../../vendor/mwf/wplib/deps
-		- ../../../../plugins/elementor
-		- ../../../../plugins/elementor-pro

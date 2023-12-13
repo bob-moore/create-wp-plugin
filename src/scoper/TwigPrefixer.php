@@ -3,11 +3,11 @@
  * Special twig scoper
  *
  * PHP Version 8.1
- *
- * @package WP Plugin Skeleton
- * @author  Bob Moore <bob@bobmoore.dev>
+
+ * @package %package%
+ * @author  %author_name% <%author_email%>
  * @license GPL-2.0+ <http://www.gnu.org/licenses/gpl-2.0.txt>
- * @link    https://github.com/bob-moore/WP-Plugin-Skeleton
+ * @link    %plugin_uri%
  * @see https://github.com/OnTheGoSystems/twig-scoper
  * @since   1.0.0
  */

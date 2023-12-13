@@ -11,10 +11,10 @@
  * @since   1.0.0
  */
 
-namespace Mwf\Theme\Handlers;
+namespace %namespace%\Handlers;
 
-use Mwf\Theme\Deps\Mwf\WPCore,
-	Mwf\Theme\Deps\Mwf\WPCore\DI\OnMount;
+use %namespace%\Deps\Devkit\WPCore,
+	%namespace%\Deps\Devkit\WPCore\DI\OnMount;
 
 /**
  * Adds custom editor support
