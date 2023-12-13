@@ -10,5 +10,13 @@
         "platform": {
             "php": "8.1"
         }
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "bash ./installers/install.sh"
+        ],
+        "post-create-project-cmd" : [
+			"bash ./installers/post-install.sh"
+		],
     }
 }

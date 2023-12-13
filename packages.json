@@ -1,13 +1,5 @@
 {
     "packages": {
         "devkit/create-wp-plugin": { @composer.json }
-    },
-    "scripts": {
-        "post-root-package-install": [
-            "bash ./installers/install.sh"
-        ],
-        "post-create-project-cmd" : [
-			"bash ./installers/post-install.sh"
-		],
     }
 }
