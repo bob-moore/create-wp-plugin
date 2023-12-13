@@ -1,6 +1,7 @@
 #!/bin/bash
-composer update
-composer dump-autoload
-rm -rf ./install
 rm packages.json
+rm composer-lock.json
 rm .gitignore
+rm -rf ./installers
+
+composer install

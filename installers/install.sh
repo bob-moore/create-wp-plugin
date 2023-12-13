@@ -36,15 +36,8 @@ cat <<END >plugin.code-workspace
 }
 END
 
-rm packages.json
-rm composer.json
-rm composer-lock.json
-rm .gitignore
+
 
 mv ./src/* ./
 
 PHP ./installers/installer.php $php_vendor $php_project $plugin_name $plugin_slug $plugin_uri $description $author $author_uri $author_email
-
-composer install
-
-rm -rf ./installers

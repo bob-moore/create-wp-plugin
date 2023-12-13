@@ -10,15 +10,5 @@
         "platform": {
             "php": "8.1"
         }
-    },
-    "autoload": {
-        "psr-4": {
-            "Devkit\\Plugin\\": "inc/"
-        }
-    },
-    "scripts": {
-        "post-root-package-install": [
-            "bash ./installers/install.sh"
-        ]
     }
 }

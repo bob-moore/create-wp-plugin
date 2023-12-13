@@ -17,18 +17,21 @@ use %namespace%\Deps\Devkit\WPCore,
 	%namespace%\Deps\Devkit\WPCore\DI\ContainerBuilder;
 
 /**
- * Main theme file
+ * Main file
  *
  * @subpackage Main
  */
-class Theme extends WPCore\Main
+class Main extends WPCore\Main
 {
 	/**
 	 * Constructor for new instance of plugin
 	 *
 	 * @param string $package : name of the package this instance belongs to.
+	 * @param string $root_file : path to root file of the plugin.
+	 *
+	 * @throws ValueError Error thrown if required data not provided.
 	 */
-	public function __construct( string $package = '' )
+	public function __construct( string $package = '', string $root_file = '' )
 	{
 		$this->setPackage( $package );
 		$this->setUrl( get_stylesheet_directory_uri() );
