@@ -12,24 +12,24 @@ class Installer
         var_dump( get_class($event) );
         $io = $event->getIO();
 
-        // $namespace    = $io->ask( 'Namespace: ' );
-        // $plugin_name  = $io->ask( 'Plugin Name: ' );
-        // $plugin_slug  = $io->ask( 'Namespace: ', strtolower( str_replace( '\\', '_', $namespace ) ) );
-        // $plugin_uri   = $io->ask( 'Plugin URI: ' );
-        // $description  = $io->ask( 'Plugin Description: ' );
-        // $author_name  = $io->ask( 'Author Name: ' );
-        // $author_uri   = $io->ask( 'Author URI: ' );
-        // $author_email = $io->ask( 'Author Email: ' );
+        $namespace    = $io->ask( 'Namespace: ' );
+        $plugin_name  = $io->ask( 'Plugin Name: ' );
+        $plugin_slug  = $io->ask( 'Namespace: ', strtolower( str_replace( '\\', '_', $namespace ) ) );
+        $plugin_uri   = $io->ask( 'Plugin URI: ' );
+        $description  = $io->ask( 'Plugin Description: ' );
+        $author_name  = $io->ask( 'Author Name: ' );
+        $author_uri   = $io->ask( 'Author URI: ' );
+        $author_email = $io->ask( 'Author Email: ' );
 
         $args = [
-            'namespace'    => $io->ask( 'Namespace: ' ),
-            'plugin_name'  => $io->ask( 'Plugin Name: ' ),
-            'plugin_slug'  => $io->ask( 'Namespace: ', strtolower( str_replace( '\\', '_', $namespace ) ) ),
-            'plugin_uri'   => $io->ask( 'Plugin URI: ' ),
-            'description'  => $io->ask( 'Plugin Description: ' ),
-            'author_name'  => $io->ask( 'Author Name: ' ),
-            'author_uri'   => $io->ask( 'Author URI: ' ),
-            'author_email' => $io->ask( 'Author Email: ' ),
+            'namespace'    => $namespace,
+            'plugin_name'  => $plugin_name,
+            'plugin_slug'  => $plugin_slug,
+            'plugin_uri'   => $plugin_uri,
+            'description'  => $description,
+            'author_name'  => $author_name,
+            'author_uri'   => $author_uri,
+            'author_email' => $author_email,
         ];
 
         print_r( $args );
