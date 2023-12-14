@@ -158,14 +158,14 @@ class Installer
         }
 
         $replacements = [
-            'Devkit\Plugin'      => $this->plugin_namespace,
-            'Devkit Plugin'      => $this->plugin_name,
+            'PLUGIN_NAMESPACE'   => $this->plugin_namespace,
+            'PLUGIN_NAME'        => $this->plugin_name,
             'PLUGIN_SLUG'        => $this->plugin_slug,
-            'PLUGIN URI'         => $this->plugin_uri,
-            'PLUGIN DESCRIPTION' => $this->description,
-            'AUTHOR NAME'        => $this->author_name,
-            'AUTHOR URI'         => $this->author_uri,
-            'AUTHOR EMAIL'       => $this->author_email,
+            'PLUGIN_URI'         => $this->plugin_uri,
+            'PLUGIN_DESCRIPTION' => $this->description,
+            'AUTHOR_NAME'        => $this->author_name,
+            'AUTHOR_URI'         => $this->author_uri,
+            'AUTHOR_EMAIL'        => $this->author_email,
         ];
 
         $content = file_get_contents( $file );
