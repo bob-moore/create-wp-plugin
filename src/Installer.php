@@ -14,7 +14,7 @@ class Installer
 
         $namespace    = $io->ask( 'Namespace: ' );
         $plugin_name  = $io->ask( 'Plugin Name: ' );
-        $plugin_slug  = $io->ask( 'Namespace: ', strtolower( str_replace( '\\', '_', $namespace ) ) );
+        $plugin_slug  = $io->ask( 'Slug: ', strtolower( str_replace( '\\', '_', $namespace ) ) );
         $plugin_uri   = $io->ask( 'Plugin URI: ' );
         $description  = $io->ask( 'Plugin Description: ' );
         $author_name  = $io->ask( 'Author Name: ' );
@@ -32,19 +32,34 @@ class Installer
             'author_email' => $author_email,
         ];
 
-        print_r( $args );
+        self::moveFiles();
+    }
 
-        // $args = [
-        //     'vendor'       => $argv[1] ?? 'Devkit',
-        //     'project'      => $argv[2] ?? 'Plugin',
-        //     'plugin_name'  => $argv[3] ?? 'Custom Plugin Name',
-        //     'slug'         => $argv[4] ?? 'custom_plugin',
-        //     'plugin_uri'   => $argv[5] ?? 'https://github.com/bob-moore/wp-framework-core',
-        //     'description'  => $argv[6] ?? '',
-        //     'author_name'  => $argv[7] ?? 'Bob Moore',
-        //     'author_uri'   => $argv[8] ?? 'https://www.bobmoore.dev',
-        //     'author_email' => $argv[8] ?? 'bob@bobmoore.dev',
-            
-        // ];
+    protected static function moveFiles(): void
+    {
+        shell_exec( 'mv ../src_real/* ../' );
+    }
+    /**
+     * Replace namespace string in composer.json file
+     *
+     * @param string $namespace : the namespace to install.
+     *
+     * @return void
+     */
+    protected static function composerJson( array $args ): void
+    {
+        $dir = dirname( __DIR__, 1 );
+        $composer = json_decode( file_get_contents( $dir . '/composer.json' ), true );
+        
+        $composer['name'] = $name;
+
+        $composer['description'] = $description;
+
+        $composer['autoload']['psr-4'] = [
+            $namespace . '\\' => 'inc/'
+        ];
+        $composer['extra']['wpify-scoper']['prefix'] = "{$namespace}\\Deps";
+        $composer['extra']['wpify-scoper']['autorun'] = true;
+        file_put_contents( $dir . '/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
     }
 }
