@@ -36,8 +36,8 @@ cat <<END >plugin.code-workspace
 }
 END
 
-
-
 mv ./src/* ./
+mv ./build/* ./src
+rm -rf ./build
 
 PHP ./installers/installer.php $php_vendor $php_project $plugin_name $plugin_slug $plugin_uri $description $author $author_uri $author_email
