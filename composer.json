@@ -17,11 +17,8 @@
 		}
 	},
     "scripts": {
-        "post-root-package-install": [
+        "post-create-project-cmd" : [
             "Devkit\\PluginBuilder\\Installer::install"
-        ]
-    },
-    "require-dev": {
-        "composer/composer": "^2.6"
+		]
     }
 }
