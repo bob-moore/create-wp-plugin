@@ -38,7 +38,7 @@ class Installer
     protected static function moveFiles(): void
     {
         shell_exec( 'pwd' );
-        shell_exec( 'mv ./src_real/* ./' );
+        // shell_exec( 'mv ./src_real/* ./' );
         
     }
     /**

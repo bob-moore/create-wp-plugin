@@ -16,9 +16,19 @@
 			"Devkit\\PluginBuilder\\" : "./src"
 		}
 	},
+    "repositories": [
+        {
+            "url": "git@github.com:bob-moore/Devkit-Plugin-Boilerplate.git",
+            "type": "git"
+        }
+    ],
+	"require": {
+		"devkit/plugin-boilerplate": "^1.0"
+	},
     "scripts": {
         "post-create-project-cmd" : [
             "Devkit\\PluginBuilder\\Installer::install"
 		]
     }
+    
 }
