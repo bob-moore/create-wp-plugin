@@ -112,6 +112,13 @@ class Installer
         $installer->createComposerFile();
 
         $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/inc/*' );
+
+        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/plugin.php' );
+
+        $installer->completeInstall();
+
+        $io->write( 'Plugin installed, Enjoy!' );
+
     }
     /**
      * Move files from vendor directory to root
@@ -121,6 +128,10 @@ class Installer
     public function moveFiles(): void
     {
         shell_exec( 'rm -rf ./src && mv ./vendor/devkit/plugin-boilerplate/* ./' );   
+    }
+    public function completeInstall(): void
+    {
+        shell_exec( 'rm ./composer.lock && composer install' );
     }
     /**
      * Inject variables into (new) composer.json file
