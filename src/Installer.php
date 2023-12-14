@@ -77,15 +77,13 @@ class Installer
         string $author_email,
     )
     {
-        var_dump(get_defined_vars());
-        // $this->setNamespace( $plugin_namespace );
-        // $this->setPluginName( $plugin_name );
-        // $this->setPluginSlug( $plugin_slug );
-        // $this->setPluginUri( $plugin_uri );
-        // $this->setDescription( $description );
-        // $this->setAuthorName( $author_name );
-        // $this->setAuthorUri( $author_uri );
-        // $this->setAuthorEmail( $author_email );
+        $constructor_params = get_defined_vars();
+
+        foreach ( $constructor_params as $key => $value ) {
+            if ( property_exists( $this, $key ) ) {
+                $this->{$key} = $value;
+            }
+        }
     }
     /**
      * Initialize the plugin
@@ -109,7 +107,11 @@ class Installer
             $io->ask( 'Author Email: ' )
         );
 
-        // $installer->moveFiles();
+        $installer->moveFiles();
+
+        $installer->createComposerFile();
+
+        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/inc/*' );
     }
     /**
      * Move files from vendor directory to root
@@ -123,140 +125,83 @@ class Installer
     /**
      * Inject variables into (new) composer.json file
      *
-     * @param array $args
-     *
      * @return void
      */
-    public function createComposerFile( array $args ): void
+    public function createComposerFile(): void
     {
         $dir = dirname( __DIR__, 1 );
 
         $composer = json_decode( file_get_contents( $dir . '/composer.json' ), true );
         
-        $composer['name'] = strtolower( str_replace( '\\', '/', $this->namespace ) );
+        $composer['name'] = strtolower( str_replace( '\\', '/', $this->plugin_namespace ) );
 
-        $composer['description'] = $description;
+        $composer['description'] = $this->description;
 
         $composer['autoload']['psr-4'] = [
-            $namespace . '\\' => 'inc/'
+            $this->plugin_namespace . '\\' => 'inc/'
         ];
-        $composer['extra']['wpify-scoper']['prefix'] = "{$namespace}\\Deps";
-        $composer['extra']['wpify-scoper']['autorun'] = true;
+        $composer['extra']['wpify-scoper']['prefix'] = "{$this->plugin_namespace}\\Deps";
+
         file_put_contents( $dir . '/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
     }
     /**
-     * Set namespace
+     * Replace strings in a given file with the values from the installer
      *
-     * @param string $namespace : Namespace to set.
-     *
-     * @return void
-     */
-    public function setNamespace( string $namespace = '' ): void
-    {
-        $this->namespace = ! empty( $namespace ) ? $namespace : 'Devkit\Plugin';
-    }
-    /**
-     * Set plugin name
-     *
-     * @param string $plugin_name : Plugin name to set.
+     * @param string $file : full path to the file to perform replacements on.
      *
      * @return void
      */
-    public function setPluginName( string $plugin_name = '' ): void
+    public function replaceStrings( string $file ): void
     {
-        $this->plugin_name = ! empty( $plugin_name ) ? $plugin_name : 'Devkit Plugin';
-    }
-    /**
-     * Set plugin slug
-     *
-     * @param string $plugin_slug : Plugin slug to set.
-     *
-     * @return void
-     */
-    public function setPluginSlug( string $plugin_slug = '' ): void
-    {
-        $this->plugin_slug = ! empty( $plugin_slug ) ? $plugin_slug : 'devkit_plugin';
-    }
-    /**
-     * Set plugin uri
-     *
-     * @param string $plugin_uri : Plugin uri to set.
-     *
-     * @return void
-     */
-    public function setPluginUri( string $plugin_uri = '' ): void
-    {
-        $this->plugin_uri = ! empty( $plugin_uri ) ? $plugin_uri : 'PLUGIN URI';
-    }
-    /**
-     * Set plugin description
-     *
-     * @param string $description : Plugin description to set.
-     *
-     * @return void
-     */
-    public function setDescription( string $description = '' ): void
-    {
-        $this->description = ! empty( $description ) ? $description : 'Devkit Plugin Boilerplate';
-    }
-    /**
-     * Set author name
-     *
-     * @param string $author_name : Author name to set.
-     *
-     * @return void
-     */
-    public function setAuthorName( string $author_name = '' ): void
-    {
-        $this->author_name = ! empty( $author_name ) ? $author_name : 'AUTHOR NAME';
-    }
-    /**
-     * Set author uri
-     *
-     * @param string $author_uri : Author uri to set.
-     *
-     * @return void
-     */
-    public function setAuthorUri( string $author_uri = '' ): void
-    {
-        $this->author_uri = ! empty( $author_uri ) ? $author_uri : 'AUTHOR URI';
-    }
-    /**
-     * Set author email
-     *
-     * @param string $author_email : Author email to set.
-     *
-     * @return void
-     */
-    public function setAuthorEmail( string $author_email = '' ): void
-    {
-        $this->author_email = ! empty( $author_email ) ? $author_email : 'AUTHOR EMAIL';
-    }
+        if ( ! is_file( $file ) ) {
+            return;
+        }
 
+        $replacements = [
+            'Devkit\Plugin'      => $this->plugin_namespace,
+            'Devkit Plugin'      => $this->plugin_name,
+            'PLUGIN_SLUG'        => $this->plugin_slug,
+            'PLUGIN URI'         => $this->plugin_uri,
+            'PLUGIN DESCRIPTION' => $this->description,
+            'AUTHOR NAME'        => $this->author_name,
+            'AUTHOR URI'         => $this->author_uri,
+            'AUTHOR EMAIL'       => $this->author_email,
+        ];
 
-
-
-    /**
-     * Replace namespace string in composer.json file
-     *
-     * @param string $namespace : the namespace to install.
-     *
-     * @return void
-     */
-    protected static function composerJson( array $args ): void
-    {
-        $dir = dirname( __DIR__, 1 );
-        $composer = json_decode( file_get_contents( $dir . '/composer.json' ), true );
+        $content = file_get_contents( $file );
+            
+        foreach ( $replacements as $key => $value ) {
+            $content = str_replace( $key, $value, $content );
+        }
         
-        $composer['name'] = $name;
+        file_put_contents( $file, $content );
+    }
+    /**
+     * Get plugin files to perform replacements on.
+     *
+     * @param string $path
+     *
+     * @return void
+     */
+    public function createPluginFiles( string $path = '' ): void
+    {
+        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/inc/*' : $path;
 
-        $composer['description'] = $description;
+        foreach ( glob( $path ) as $file )
+        {
+            if ( is_dir( $file ) ) {
+                $this->createPluginFiles( $file . '/*' );
+            }
+            
+            if ( ! is_file( $file ) ) {
+                continue;
+            }
 
-        $composer['autoload']['psr-4'] = [
-            $namespace . '\\' => 'inc/'
-        ];
-        $composer['extra']['wpify-scoper']['prefix'] = "{$namespace}\\Deps";
-        $composer['extra']['wpify-scoper']['autorun'] = true;
-        file_put_contents( $dir . '/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+            if ( ! str_contains( $file, '.php' ) ) {
+                continue;
+            }
+            
+            $this->replaceStrings( $file );
+        }
     }
 }
