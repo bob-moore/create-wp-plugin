@@ -27,7 +27,7 @@
 	},
     "scripts": {
         "post-root-package-install" : [
-            "Devkit\\PluginBuilder\\Installer::install"
+            "Devkit\\PluginBuilder\\Installer::init"
 		]
     }
     
