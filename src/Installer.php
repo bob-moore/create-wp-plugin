@@ -37,7 +37,8 @@ class Installer
 
     protected static function moveFiles(): void
     {
-        shell_exec( 'mv ../src_real/* ../' );
+        // shell_exec( 'mv ../src_real/* ../' );
+        shell_exec( 'pwd' );
     }
     /**
      * Replace namespace string in composer.json file
