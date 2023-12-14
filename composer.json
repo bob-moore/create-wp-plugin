@@ -20,5 +20,8 @@
         "post-root-package-install": [
             "Devkit\\PluginBuilder\\Installer::install"
         ]
+    },
+    "require-dev": {
+        "composer/composer": "^2.6"
     }
 }
