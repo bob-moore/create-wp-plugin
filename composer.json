@@ -11,9 +11,17 @@
             "php": "8.1"
         }
     },
+    "autoload": {
+		"psr-4": {
+			"Devkit\\PluginBuilder\\" : "./src"
+		}
+	},
     "scripts": {
+        // "post-install-cmd": [
+        //     "Devkit\\PluginBuilder\\Installer::install"
+        // ],
         "post-root-package-install": [
-            "bash ./installers/install.sh"
+            "Devkit\\PluginBuilder\\Installer::install"
         ],
         "post-create-project-cmd" : [
 			"bash ./installers/post-install.sh"
