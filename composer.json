@@ -17,9 +17,6 @@
 		}
 	},
     "scripts": {
-        // "post-install-cmd": [
-        //     "Devkit\\PluginBuilder\\Installer::install"
-        // ],
         "post-root-package-install": [
             "Devkit\\PluginBuilder\\Installer::install"
         ],
