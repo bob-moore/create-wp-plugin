@@ -19,9 +19,6 @@
     "scripts": {
         "post-root-package-install": [
             "Devkit\\PluginBuilder\\Installer::install"
-        ],
-        "post-create-project-cmd" : [
-			"bash ./installers/post-install.sh"
-		]
+        ]
     }
 }
