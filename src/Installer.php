@@ -120,7 +120,7 @@ class Installer
      */
     public function moveFiles(): void
     {
-        shell_exec( 'mv ./vendor/devkit/plugin-boilerplate/* ./' );   
+        shell_exec( 'rm -rf ./src && mv ./vendor/devkit/plugin-boilerplate/* ./' );   
     }
     /**
      * Inject variables into (new) composer.json file
