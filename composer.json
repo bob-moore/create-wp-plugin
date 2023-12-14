@@ -23,11 +23,11 @@
         }
     ],
 	"require": {
-		"devkit/plugin-boilerplate": "^1.0"
+		"devkit/plugin-boilerplate": "dev-main"
 	},
     "scripts": {
-        "post-create-project-cmd" : [
-            "Devkit\\PluginBuilder\\Installer::init"
+        "post-root-package-install" : [
+            "Devkit\\PluginBuilder\\Installer::install"
 		]
     }
     
