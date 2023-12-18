@@ -26,7 +26,7 @@ use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
  *
  * @subpackage Controllers
  */
-class Handlers extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\Controller
+class Handlers extends WPCore\Controllers\Handlers
 {
 	/**
 	 * Get definitions that should be added to the service container
@@ -35,10 +35,10 @@ class Handlers extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\C
 	 */
 	public static function getServiceDefinitions(): array
 	{
-		return [
+		return array_merge( parent::getServiceDefinitions(), [
 			Handler\Editor::class => ContainerBuilder::autowire(),
 			Handler\Images::class => ContainerBuilder::autowire(),
-		];
+		] );
 	}
 	/**
 	 * Actions to perform when the class is loaded

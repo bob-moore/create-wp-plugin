@@ -25,7 +25,7 @@ use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
  *
  * @subpackage Controllers
  */
-class Router extends WPCore\Controllers\Routes
+class Routes extends WPCore\Controllers\Routes
 {
 	/**
 	 * Get definitions that should be added to the service container
@@ -41,12 +41,14 @@ class Router extends WPCore\Controllers\Routes
 			Routes\Single::class   => 	ContainerBuilder::autowire(),
 			Routes\Admin::class    => 	ContainerBuilder::autowire(),
 			Routes\Frontend::class => 	ContainerBuilder::autowire(),
+			Routes\Login::class    => 	ContainerBuilder::autowire(),
 			'route.archive'        => 	ContainerBuilder::get( Routes\Archive::class ),
 			'route.search'         => 	ContainerBuilder::get( Routes\Search::class ),
 			'route.blog'           => 	ContainerBuilder::get( Routes\Blog::class ),
 			'route.single'         => 	ContainerBuilder::get( Routes\Single::class ),
 			'route.admin'          => 	ContainerBuilder::get( Routes\Admin::class ),
 			'route.frontend'       => 	ContainerBuilder::get( Routes\Frontend::class ),
+			'route.login'          => 	ContainerBuilder::get( Routes\Frontend::class ),
 		];
 	}
 }

@@ -19,6 +19,8 @@ use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
 	PLUGIN_NAMESPACE\Deps\Devkit\WPCore\DI\OnMount,
 	PLUGIN_NAMESPACE\Deps\Devkit\WPCore\DI\ContainerBuilder;
 
+use Psr\Container\ContainerInterface;
+
 /**
  * Providers controller class
  *
@@ -36,32 +38,45 @@ class Providers extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\
 	public static function getServiceDefinitions(): array
 	{
 		return [
-			Provider\Astra::class   => ContainerBuilder::autowire(),
-			Provider\Kadence::class => ContainerBuilder::autowire(),
+			Provider\ACF::class => ContainerBuilder::autowire(),
+			static::class       => Lib\DI\ContainerBuilder::decorate(
+				[
+					static::class,
+					'decorateInstance',
+				]
+			),
 		];
 	}
 	/**
-	 * Actions to perform when the class is loaded
+	 * Class decorator
 	 *
-	 * @param Provider\Astra $provider : astra provider instance.
+	 * Mounts active providers
 	 *
-	 * @return void
+	 * @param self               $instance : instance of this class.
+	 * @param ContainerInterface $container : container instance.
+	 *
+	 * @return self
 	 */
-	#[OnMount]
-	public function mountAstra( Provider\Astra $provider ): void
+	public static function decorateInstance( self $instance, ContainerInterface $container ): self
 	{
-		add_filter( "{$this->package}_frontend_style_dependencies", [ $provider, 'useStyles' ] );
+		if ( 
+			WPCore\Helpers::isPluginActive( 'advanced-custom-fields-pro/acf.php')
+			|| WPCore\Helpers::isPluginActive( 'advanced-custom-fields/acf.php' )
+		) {
+			$container->call( [ $instance, 'mountAcf' ] );
+		}
+
+		return $instance;
 	}
 	/**
 	 * Actions to perform when the class is loaded
 	 *
-	 * @param Provider\Kadence $provider : kadence provider instance.
+	 * @param Provider\ACF $provider : acf provider instance.
 	 *
 	 * @return void
 	 */
-	#[OnMount]
-	public function mountKadence( Provider\Kadence $provider ): void
+	public function mountAcf( Provider\ACF $provider ): void
 	{
-		add_filter( "{$this->package}_frontend_style_dependencies", [ $provider, 'useStyles' ] );
+		// add actions & filters for ACF
 	}
 }

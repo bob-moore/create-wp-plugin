@@ -22,12 +22,11 @@ use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
  * @subpackage Route
  */
 class Frontend extends WPCore\Abstracts\Mountable implements
-	WPCore\Interfaces\Uses\ScriptDispatcher,
-	WPCore\Interfaces\Uses\StyleDispatcher
+	WPCore\Interfaces\Uses\Scripts,
+	WPCore\Interfaces\Uses\Styles
 {
-	use WPCore\Traits\Uses\ScriptDispatcher;
-	use WPCore\Traits\Uses\StyleDispatcher;
-
+	use WPCore\Traits\Uses\Scripts;
+	use WPCore\Traits\Uses\Styles;
 	/**
 	 * Load actions and filters, and other setup requirements
 	 *

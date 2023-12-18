@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Route Definition
+ * Frontend Route Definition
  *
  * PHP Version 8.0.28
  *
@@ -17,17 +17,16 @@ use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
 	PLUGIN_NAMESPACE\Deps\Devkit\WPCore\DI\OnMount;
 
 /**
- * Admin router class
+ * Frontend router class
  *
  * @subpackage Route
  */
-class Admin extends WPCore\Abstracts\Mountable implements
+class Login extends WPCore\Abstracts\Mountable implements
 	WPCore\Interfaces\Uses\Scripts,
 	WPCore\Interfaces\Uses\Styles
 {
 	use WPCore\Traits\Uses\Scripts;
 	use WPCore\Traits\Uses\Styles;
-
 	/**
 	 * Load actions and filters, and other setup requirements
 	 *
@@ -36,22 +35,22 @@ class Admin extends WPCore\Abstracts\Mountable implements
 	#[OnMount]
 	public function mount(): void
 	{
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueAssets' ] );
+		add_action( 'login_enqueue_scripts', [ $this, 'enqueueAssets' ] );
 	}
 	/**
-	 * Enqueue admin styles and JS bundles
+	 * Enqueue styles and JS bundles
 	 *
 	 * @return void
 	 */
 	public function enqueueAssets(): void
 	{
 		$this->enqueueScript(
-			'admin',
-			'admin/bundle.js'
+			'login',
+			'login/bundle.js'
 		);
 		$this->enqueueStyle(
-			'admin',
-			'admin/bundle.css'
+			'login',
+			'login/bundle.css'
 		);
 	}
 }

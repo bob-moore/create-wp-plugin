@@ -24,45 +24,40 @@ use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
 class Main extends WPCore\Main
 {
 	/**
-	 * Constructor for new instance of plugin
+	 * The optional package name.
 	 *
-	 * @param string $package : name of the package this instance belongs to.
-	 * @param string $root_file : path to root file of the plugin.
-	 *
-	 * @throws ValueError Error thrown if required data not provided.
+	 * @var string
 	 */
-	public function __construct( string $package = '', string $root_file = '' )
-	{
-		$this->setPackage( $package );
-		$this->setUrl( get_stylesheet_directory_uri() );
-		$this->setDir( get_stylesheet_directory() );
-		parent::__construct();
-	}
+	protected const PACKAGE = 'PLUGIN_SLUG';
 	/**
 	 * Get service definitions to add to service container
 	 *
 	 * @return array<string, mixed>
 	 */
-	protected function getServiceDefinitions(): array
+	public static function getServiceDefinitions(): array
 	{
-		$definitions = [
-			Controllers\Handlers::class  => ContainerBuilder::autowire(),
-			Controllers\Router::class    => ContainerBuilder::autowire(),
-			Controllers\Providers::class => ContainerBuilder::autowire(),
+		return [
+			Controllers\Handlers::class => ContainerBuilder::autowire(),
+			Controllers\Routes::class   => ContainerBuilder::autowire(),
+			Controllers\Services::class => ContainerBuilder::autowire(),
 		];
-		return array_merge( $definitions, parent::getServiceDefinitions() );
 	}
 	/**
-	 * Instantiate controllers
+	 * Mount the Actions
 	 *
 	 * @return void
 	 */
-	public function mount(): void
+	protected function mountActions(): void
 	{
-		$this->service_container->get( Controllers\Handlers::class );
-		$this->service_container->get( Controllers\Router::class );
-		$this->service_container->get( Controllers\Providers::class );
-
-		parent::mount();
+		parent::mountActions();
+	}
+	/**
+	 * Mount the controller classes
+	 *
+	 * @return void
+	 */
+	protected function mountControllers(): void
+	{
+		parent::mountControllers();
 	}
 }
