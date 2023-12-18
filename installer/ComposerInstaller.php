@@ -128,8 +128,8 @@ class ComposerInstaller
     public function moveFiles(): void
     {
         shell_exec( 'mv ./src/* ./temp' );
-        shell_exec( 'rm -rf ./src' ); 
-        shell_exec( 'mv ./temp/* ./' );
+        // shell_exec( 'rm -rf ./src' ); 
+        // shell_exec( 'mv ./temp/* ./' );
     }
     /**
      * Inject variables into (new) composer.json file
