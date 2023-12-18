@@ -1,10 +1,10 @@
 <?php
 
-namespace Devkit\PluginBuilder;
+namespace Devkit\Plugin\Installer;
 
 use Composer\Script\Event;
 
-class Installer
+class ComposerInstaller
 {
     /**
      * Namespace to inject into plugin files
@@ -96,7 +96,7 @@ class Installer
     {
         $io = $event->getIO();
 
-        $installer = new Installer( 
+        $installer = new ComposerInstaller( 
             $io->ask( 'Namespace: ' ),
             $io->ask( 'Plugin Name: ' ),
             $io->ask( 'Slug: ' ),
@@ -127,11 +127,9 @@ class Installer
      */
     public function moveFiles(): void
     {
-        shell_exec( 'rm -rf ./src && mv ./vendor/devkit/plugin-boilerplate/* ./' );   
-    }
-    public function completeInstall(): void
-    {
-        shell_exec( 'rm ./composer.lock && composer install' );
+        shell_exec( 'mv ./src/* ./temp' );
+        shell_exec( 'rm -rf ./src' ); 
+        shell_exec( 'mv ./temp/* ./' );
     }
     /**
      * Inject variables into (new) composer.json file
@@ -154,6 +152,38 @@ class Installer
         $composer['extra']['wpify-scoper']['prefix'] = "{$this->plugin_namespace}\\Deps";
 
         file_put_contents( $dir . '/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+    }
+    /**
+     * Get plugin files to perform replacements on.
+     *
+     * @param string $path
+     *
+     * @return void
+     */
+    public function createPluginFiles( string $path = '' ): void
+    {
+        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/inc/*' : $path;
+
+        foreach ( glob( $path ) as $file )
+        {
+            if ( is_dir( $file ) ) {
+                $this->createPluginFiles( $file . '/*' );
+            }
+            
+            if ( ! is_file( $file ) ) {
+                continue;
+            }
+
+            if ( ! str_contains( $file, '.php' ) ) {
+                continue;
+            }
+            
+            $this->replaceStrings( $file );
+        }
+    }
+    public function completeInstall(): void
+    {
+        shell_exec( 'rm ./composer.lock && composer install' );
     }
     /**
      * Replace strings in a given file with the values from the installer
@@ -187,32 +217,5 @@ class Installer
         
         file_put_contents( $file, $content );
     }
-    /**
-     * Get plugin files to perform replacements on.
-     *
-     * @param string $path
-     *
-     * @return void
-     */
-    public function createPluginFiles( string $path = '' ): void
-    {
-        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/inc/*' : $path;
 
-        foreach ( glob( $path ) as $file )
-        {
-            if ( is_dir( $file ) ) {
-                $this->createPluginFiles( $file . '/*' );
-            }
-            
-            if ( ! is_file( $file ) ) {
-                continue;
-            }
-
-            if ( ! str_contains( $file, '.php' ) ) {
-                continue;
-            }
-            
-            $this->replaceStrings( $file );
-        }
-    }
 }
