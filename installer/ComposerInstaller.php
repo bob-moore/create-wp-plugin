@@ -80,7 +80,7 @@ class ComposerInstaller
         $constructor_params = get_defined_vars();
 
         foreach ( $constructor_params as $key => $value ) {
-            if ( property_exists( $this, $key ) ) {
+            if ( property_exists( $this, $key ) && ! empty( $value ) ) {
                 $this->{$key} = $value;
             }
         }
@@ -107,29 +107,15 @@ class ComposerInstaller
             $io->ask( 'Author Email: ' )
         );
 
-        $installer->moveFiles();
-
         $installer->createComposerFile();
 
-        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/inc/*' );
+        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/src/inc/*' );
 
-        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/plugin.php' );
+        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/src/plugin.php' );
 
-        $installer->completeInstall();
+        $installer->moveFiles();
 
         $io->write( 'Plugin installed, Enjoy!' );
-
-    }
-    /**
-     * Move files from vendor directory to root
-     *
-     * @return void
-     */
-    public function moveFiles(): void
-    {
-        shell_exec( 'mv ./src/* ./temp' );
-        // shell_exec( 'rm -rf ./src' ); 
-        // shell_exec( 'mv ./temp/* ./' );
     }
     /**
      * Inject variables into (new) composer.json file
@@ -140,9 +126,15 @@ class ComposerInstaller
     {
         $dir = dirname( __DIR__, 1 );
 
-        $composer = json_decode( file_get_contents( $dir . '/composer.json' ), true );
+        $composer = json_decode( file_get_contents( $dir . '/src/composer.json' ), true );
+
+        $name = explode( '\\', $composer['name'] );
+
+        $vender = array_shift( $name );
+
+        $package = implode( '-', $name );
         
-        $composer['name'] = strtolower( str_replace( '\\', '/', $this->plugin_namespace ) );
+        $composer['name'] = strtolower( rtrim( $vender . '/' . $package ) );
 
         $composer['description'] = $this->description;
 
@@ -151,7 +143,7 @@ class ComposerInstaller
         ];
         $composer['extra']['wpify-scoper']['prefix'] = "{$this->plugin_namespace}\\Deps";
 
-        file_put_contents( $dir . '/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+        file_put_contents( $dir . '/src/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
     }
     /**
      * Get plugin files to perform replacements on.
@@ -162,7 +154,7 @@ class ComposerInstaller
      */
     public function createPluginFiles( string $path = '' ): void
     {
-        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/inc/*' : $path;
+        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/src/inc/*' : $path;
 
         foreach ( glob( $path ) as $file )
         {
@@ -181,9 +173,44 @@ class ComposerInstaller
             $this->replaceStrings( $file );
         }
     }
-    public function completeInstall(): void
+    /**
+     * Move files from vendor directory to root
+     *
+     * @return void
+     */
+    public function moveFiles(): void
     {
-        shell_exec( 'rm ./composer.lock && composer install' );
+        shell_exec( 'mkdir ./temp' );
+        shell_exec( 'mv ./src/* ./temp' );
+        shell_exec( 'rm -rf ./src' );
+        shell_exec( 'rm ./composer.lock && rm composer.json && rm packages.json' );
+        shell_exec( 'mv ./temp/* ./ && rm -rf ./temp' );
+        shell_exec( 'composer install' );
+        shell_exec( 'cat <<END >plugin.code-workspace
+        {
+            "folders": [
+                {
+                    "path": "."
+                }
+            ],
+            "settings": {
+                "intelephense.environment.includePaths" : [],
+                "phpcs.enable": true,
+                "phpcs.standard": "./tests/phpcs.xml",
+                "phpcs.executablePath": "./vendor/bin/phpcs",
+                "phpcs.showWarnings": true,
+                "phpcs.showSources": true,
+                "phpcs.composerJsonPath": "./composer.json",
+                "phpcs.errorSeverity": 6,
+                "php.suggest.basic": true,
+                "git.ignoreLimitWarning": true,
+                "editor.rulers": [
+                    80,
+                    120
+                ]
+            }
+        }
+        END' );
     }
     /**
      * Replace strings in a given file with the values from the installer
@@ -206,7 +233,7 @@ class ComposerInstaller
             'PLUGIN_DESCRIPTION' => $this->description,
             'AUTHOR_NAME'        => $this->author_name,
             'AUTHOR_URI'         => $this->author_uri,
-            'AUTHOR_EMAIL'        => $this->author_email,
+            'AUTHOR_EMAIL'       => $this->author_email,
         ];
 
         $content = file_get_contents( $file );
