@@ -209,8 +209,8 @@ class ComposerInstaller
                     120
                 ]
             }
-        }
-        END' );
+        }' );
+        shell_exec( 'rm -rf ./installer' );
     }
     /**
      * Replace strings in a given file with the values from the installer
