@@ -7,13 +7,13 @@
  * @package PLUGIN_SLUG
  * @author  AUTHOR_NAME <AUTHOR_EMAIL>
  * @license GPL-2.0+ <http://www.gnu.org/licenses/gpl-2.0.txt>
- * @link    https://github.com/bob-moore/Devkit-Plugin-Boilerplate
+ * @link    PLUGIN_URI
  * @since   1.0.0
  */
 
 namespace PLUGIN_NAMESPACE\Controllers;
 
-use PLUGIN_NAMESPACE\Routes;
+use PLUGIN_NAMESPACE\Routes as Route;
 
 use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
 	PLUGIN_NAMESPACE\Deps\Devkit\WPCore\DI\ContainerBuilder;
@@ -35,20 +35,20 @@ class Routes extends WPCore\Controllers\Routes
 	public static function getServiceDefinitions(): array
 	{
 		return [
-			Routes\Archive::class  => 	ContainerBuilder::autowire(),
-			Routes\Search::class   => 	ContainerBuilder::autowire(),
-			Routes\Blog::class     => 	ContainerBuilder::autowire(),
-			Routes\Single::class   => 	ContainerBuilder::autowire(),
-			Routes\Admin::class    => 	ContainerBuilder::autowire(),
-			Routes\Frontend::class => 	ContainerBuilder::autowire(),
-			Routes\Login::class    => 	ContainerBuilder::autowire(),
-			'route.archive'        => 	ContainerBuilder::get( Routes\Archive::class ),
-			'route.search'         => 	ContainerBuilder::get( Routes\Search::class ),
-			'route.blog'           => 	ContainerBuilder::get( Routes\Blog::class ),
-			'route.single'         => 	ContainerBuilder::get( Routes\Single::class ),
-			'route.admin'          => 	ContainerBuilder::get( Routes\Admin::class ),
-			'route.frontend'       => 	ContainerBuilder::get( Routes\Frontend::class ),
-			'route.login'          => 	ContainerBuilder::get( Routes\Frontend::class ),
+			Route\Archive::class  => 	ContainerBuilder::autowire(),
+			Route\Search::class   => 	ContainerBuilder::autowire(),
+			Route\Blog::class     => 	ContainerBuilder::autowire(),
+			Route\Single::class   => 	ContainerBuilder::autowire(),
+			Route\Admin::class    => 	ContainerBuilder::autowire(),
+			Route\Frontend::class => 	ContainerBuilder::autowire(),
+			Route\Login::class    => 	ContainerBuilder::autowire(),
+			'route.archive'        => 	ContainerBuilder::get( Route\Archive::class ),
+			'route.search'         => 	ContainerBuilder::get( Route\Search::class ),
+			'route.blog'           => 	ContainerBuilder::get( Route\Blog::class ),
+			'route.single'         => 	ContainerBuilder::get( Route\Single::class ),
+			'route.admin'          => 	ContainerBuilder::get( Route\Admin::class ),
+			'route.frontend'       => 	ContainerBuilder::get( Route\Frontend::class ),
+			'route.login'          => 	ContainerBuilder::get( Route\Frontend::class ),
 		];
 	}
 }

@@ -1,6 +1,6 @@
 {
-    "name": "devkit/plugin-boilerplate",
-    "description": "Boilerplate for WP plugins",
+    "name": "plugin/name",
+    "description": "Plugin Description",
     "type": "library",
     "license": "GPL-2.0+ <http://www.gnu.org/licenses/gpl-2.0.txt>",
 	"minimum-stability": "dev",

@@ -1,6 +1,6 @@
 <?php
 /**
- * Service Controller
+ * Handler Controller
  *
  * PHP Version 8.0.28
  *
@@ -20,7 +20,7 @@ use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
 	PLUGIN_NAMESPACE\Deps\Devkit\WPCore\DI\ContainerBuilder;
 
 /**
- * Service controller class
+ * Handler controller class
  *
  * Controls and orchestrates the execution of specific handlers.
  *

@@ -7,7 +7,7 @@
  * @package PLUGIN_SLUG
  * @author  AUTHOR_NAME <AUTHOR_EMAIL>
  * @license GPL-2.0+ <http://www.gnu.org/licenses/gpl-2.0.txt>
- * @link    https://github.com/bob-moore/Devkit-Plugin-Boilerplate
+ * @link    PLUGIN_URI
  * @since   1.0.0
  */
 
@@ -37,9 +37,13 @@ class Main extends WPCore\Main
 	public static function getServiceDefinitions(): array
 	{
 		return [
-			Controllers\Handlers::class => ContainerBuilder::autowire(),
-			Controllers\Routes::class   => ContainerBuilder::autowire(),
-			Controllers\Services::class => ContainerBuilder::autowire(),
+			Controllers\Handlers::class        => ContainerBuilder::autowire(),
+			Controllers\Routes::class          => ContainerBuilder::autowire(),
+			Controllers\Providers::class       => ContainerBuilder::autowire(),
+			/**
+			 * Enable a parent controller if we don't need to extend it, but still want to use it
+			 */
+			WPCore\Controllers\Services::class => ContainerBuilder::autowire(),
 		];
 	}
 	/**
