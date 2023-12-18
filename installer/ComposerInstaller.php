@@ -134,7 +134,7 @@ class ComposerInstaller
 
         $package = implode( '-', $name );
         
-        $composer['name'] = strtolower( rtrim( $vender . '/' . $package ) );
+        $composer['name'] = rtrim( strtolower( $vender . '/' . $package ), '/' );
 
         $composer['description'] = $this->description;
 
