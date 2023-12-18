@@ -13,7 +13,7 @@
     },
     "autoload": {
 		"psr-4": {
-			"Devkit\\Plugin\\Installer" : "./installer"
+			"Devkit\\Plugin\\Installer\\" : "./installer"
 		}
 	},
     "scripts": {
