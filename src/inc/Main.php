@@ -41,6 +41,7 @@ class Main extends WPCore\Main
 			Controllers\Router::class    => ContainerBuilder::autowire(),
 			Controllers\Providers::class => ContainerBuilder::autowire(),
 			Controllers\Entities::class  => ContainerBuilder::autowire(),
+			Controllers\Compiler::class  => ContainerBuilder::autowire(),
 		];
 	}
 }

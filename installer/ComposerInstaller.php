@@ -159,6 +159,8 @@ class ComposerInstaller
             unset( $composer_deps['require']['timber/timber'] );
 
             file_put_contents( $dir . '/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+
+            $this->removeLine( $dir . '/src/inc/Main.php', "Controllers\Compiler::class" );
         }
     }
     /**
@@ -190,6 +192,23 @@ class ComposerInstaller
         }
     }
     /**
+     * Remove an entire line that contains a string
+     *
+     * @param string $file : the file to search.
+     * @param string $remove : the string to search for.
+     *
+     * @return void
+     */
+    function removeLine( string $file, string $remove ): void
+    {
+        $lines = file($file, FILE_IGNORE_NEW_LINES );
+        foreach ($lines as $key => $line ) {
+            if( $line === $remove ) unset( $lines[$key] );
+        }
+        $data = implode( PHP_EOL, $lines );
+        file_put_contents( $file, $data );
+    }
+    /**
      * Move files from vendor directory to root
      *
      * @return void
@@ -201,6 +220,12 @@ class ComposerInstaller
         shell_exec( 'rm -rf ./src' );
         shell_exec( 'rm ./composer.lock && rm composer.json && rm packages.json' );
         shell_exec( 'mv ./temp/* ./ && rm -rf ./temp' );
+
+        if ( ! $this->timber_support ) {
+            shell_exec( 'rm ./src/inc/Controllers/Compiler.php' );
+            shell_exec( 'rm ./src/inc/Services/Compiler.php' );
+        }
+
         shell_exec( 'composer install' );
         shell_exec( 'cat <<END >plugin.code-workspace
         {
