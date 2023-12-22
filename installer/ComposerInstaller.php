@@ -160,7 +160,7 @@ class ComposerInstaller
 
             file_put_contents( $dir . '/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 
-            $this->removeLine( $dir . '/src/inc/Main.php', "Controllers\Compiler::class" );
+            $this->removeLine( $dir . '/src/inc/Main.php', "Controllers\\Compiler::class" );
         }
     }
     /**
@@ -202,10 +202,15 @@ class ComposerInstaller
     function removeLine( string $file, string $remove ): void
     {
         $lines = file($file, FILE_IGNORE_NEW_LINES );
+        
         foreach ($lines as $key => $line ) {
-            if( $line === $remove ) unset( $lines[$key] );
+            if ( str_contains( $line, $remove ) ) {
+                unset( $lines[$key] );
+            }
         }
+        
         $data = implode( PHP_EOL, $lines );
+
         file_put_contents( $file, $data );
     }
     /**
@@ -222,8 +227,8 @@ class ComposerInstaller
         shell_exec( 'mv ./temp/* ./ && rm -rf ./temp' );
 
         if ( ! $this->timber_support ) {
-            shell_exec( 'rm ./src/inc/Controllers/Compiler.php' );
-            shell_exec( 'rm ./src/inc/Services/Compiler.php' );
+            shell_exec( 'rm -f ./inc/Controllers/Compiler.php' );
+            shell_exec( 'rm -f ./inc/Services/Compiler.php' );
         }
 
         shell_exec( 'composer install' );
