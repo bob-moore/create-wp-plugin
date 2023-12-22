@@ -1,0 +1,21 @@
+{
+	"apiVersion": 2,
+	"title": "Sample Custom Blocks",
+	"name": "example-plugin/sample-block",
+	"category": "layout",
+	"icon": "editor-code",
+	"editorScript": "file:./index.tsx",
+	"editorStyle": "file:./index.css",
+	"render": "file:./render.php",
+	"attributes": {
+        "align": {
+            "type": "string",
+            "default": "none"
+        },
+        "content": {
+            "type": "string",
+            "source": "html",
+            "selector": "p"
+        }
+	}
+}

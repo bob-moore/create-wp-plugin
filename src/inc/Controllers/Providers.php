@@ -16,7 +16,6 @@ namespace PLUGIN_NAMESPACE\Controllers;
 use PLUGIN_NAMESPACE\Providers as Provider;
 
 use PLUGIN_NAMESPACE\Deps\Devkit\WPCore,
-	PLUGIN_NAMESPACE\Deps\Devkit\WPCore\DI\OnMount,
 	PLUGIN_NAMESPACE\Deps\Devkit\WPCore\DI\ContainerBuilder;
 
 use Psr\Container\ContainerInterface;
@@ -39,7 +38,7 @@ class Providers extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\
 	{
 		return [
 			Provider\ACF::class => ContainerBuilder::autowire(),
-			static::class       => Lib\DI\ContainerBuilder::decorate(
+			static::class       => ContainerBuilder::decorate(
 				[
 					static::class,
 					'decorateInstance',
@@ -59,11 +58,14 @@ class Providers extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\
 	 */
 	public static function decorateInstance( self $instance, ContainerInterface $container ): self
 	{
-		if ( 
-			WPCore\Helpers::isPluginActive( 'advanced-custom-fields-pro/acf.php')
+		/**
+		 * Mount Advanced Custom Fields Provider IF the plugin is active
+		 */
+		if (
+			WPCore\Helpers::isPluginActive( 'advanced-custom-fields-pro/acf.php' )
 			|| WPCore\Helpers::isPluginActive( 'advanced-custom-fields/acf.php' )
 		) {
-			$container->call( [ $instance, 'mountAcf' ] );
+			$instance->mountAcf( $container->get( Provider\ACF::class ) );
 		}
 
 		return $instance;
@@ -77,6 +79,6 @@ class Providers extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\
 	 */
 	public function mountAcf( Provider\ACF $provider ): void
 	{
-		// add actions & filters for ACF
+		// add actions & filters for ACF.
 	}
 }

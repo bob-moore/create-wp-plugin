@@ -55,6 +55,12 @@ class ComposerInstaller
      */
     protected string $author_email = 'AUTHOR EMAIL';
     /**
+     * Whether or not to install Timber support
+     *
+     * @var bool
+     */
+    protected bool $timber_support = false;
+    /**
      * Protected constructor
      *
      * @param string $namespace : Namespace to set.
@@ -75,6 +81,7 @@ class ComposerInstaller
         string $author_name,
         string $author_uri,
         string $author_email,
+        bool $timber_support
     )
     {
         $constructor_params = get_defined_vars();
@@ -104,7 +111,8 @@ class ComposerInstaller
             $io->ask( 'Plugin Description: ' ),
             $io->ask( 'Author Name: ' ),
             $io->ask( 'Author URI: ' ),
-            $io->ask( 'Author Email: ' )
+            $io->ask( 'Author Email: ' ),
+            $io->askConfirmation( 'Install Timber support? [y/n] ' ),
         );
 
         $installer->createComposerFile();
@@ -144,6 +152,14 @@ class ComposerInstaller
         $composer['extra']['wpify-scoper']['prefix'] = "{$this->plugin_namespace}\\Deps";
 
         file_put_contents( $dir . '/src/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+
+        if ( ! $this->timber_support ) {
+            $composer_deps = json_decode( file_get_contents( $dir . '/src/composer-deps.json' ), true );
+
+            unset( $composer_deps['require']['timber/timber'] );
+
+            file_put_contents( $dir . '/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+        }
     }
     /**
      * Get plugin files to perform replacements on.

@@ -27,6 +27,7 @@ class Frontend extends WPCore\Abstracts\Mountable implements
 {
 	use WPCore\Traits\Uses\Scripts;
 	use WPCore\Traits\Uses\Styles;
+
 	/**
 	 * Load actions and filters, and other setup requirements
 	 *

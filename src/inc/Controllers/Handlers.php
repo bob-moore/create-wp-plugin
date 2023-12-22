@@ -35,35 +35,49 @@ class Handlers extends WPCore\Controllers\Handlers
 	 */
 	public static function getServiceDefinitions(): array
 	{
-		return array_merge( parent::getServiceDefinitions(), [
-			Handler\Editor::class => ContainerBuilder::autowire(),
-			Handler\Images::class => ContainerBuilder::autowire(),
-		] );
+		return array_merge(
+			parent::getServiceDefinitions(),
+			[
+				Handler\Posts::class  => ContainerBuilder::autowire(),
+				Handler\Terms::class  => ContainerBuilder::autowire(),
+				Handler\Blocks::class => ContainerBuilder::autowire(),
+			]
+		);
 	}
 	/**
-	 * Actions to perform when the class is loaded
+	 * Mount blocks handler
 	 *
-	 * @param Handler\Editor $handler : instance of editor service.
+	 * @param Handler\Blocks $handler : instance of block handler.
 	 *
 	 * @return void
 	 */
 	#[OnMount]
-	public function mountEditor( Handler\Editor $handler ): void
+	public function mountBlocks( Handler\Blocks $handler ): void
 	{
-		add_action( 'after_setup_theme', [ $handler, 'themeSupport' ] );
-		add_action( 'after_setup_theme', [ $handler, 'editorStylesheet' ], 99999 );
+		add_action( 'init', [ $handler, 'registerBlocks' ] );
 	}
 	/**
-	 * Actions to work with images
+	 * Mount post handler
 	 *
-	 * @param Handler\Images $handler : instance of images handler.
+	 * @param Handler\Posts $handler : instance of block handler.
 	 *
 	 * @return void
 	 */
 	#[OnMount]
-	public function mountIMages( Handler\Images $handler ): void
+	public function mountPosts( Handler\Posts $handler ): void
 	{
-		add_filter( 'after_setup_theme', [ $handler, 'addImageSizes' ] );
-		add_filter( 'image_size_names_choose', [ $handler, 'addImageSizeLabels' ] );
+		add_action( 'init', [ $handler, 'registerPostTypes' ] );
+	}
+	/**
+	 * Mount term/taxonomy handler
+	 *
+	 * @param Handler\Terms $handler : instance of block handler.
+	 *
+	 * @return void
+	 */
+	#[OnMount]
+	public function mountTaxonomies( Handler\Terms $handler ): void
+	{
+		add_action( 'init', [ $handler, 'registerTaxonomies' ] );
 	}
 }

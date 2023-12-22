@@ -37,31 +37,10 @@ class Main extends WPCore\Main
 	public static function getServiceDefinitions(): array
 	{
 		return [
-			Controllers\Handlers::class        => ContainerBuilder::autowire(),
-			Controllers\Routes::class          => ContainerBuilder::autowire(),
-			Controllers\Providers::class       => ContainerBuilder::autowire(),
-			/**
-			 * Enable a parent controller if we don't need to extend it, but still want to use it
-			 */
-			WPCore\Controllers\Services::class => ContainerBuilder::autowire(),
+			Controllers\Handlers::class  => ContainerBuilder::autowire(),
+			Controllers\Router::class    => ContainerBuilder::autowire(),
+			Controllers\Providers::class => ContainerBuilder::autowire(),
+			Controllers\Entities::class  => ContainerBuilder::autowire(),
 		];
-	}
-	/**
-	 * Mount the Actions
-	 *
-	 * @return void
-	 */
-	protected function mountActions(): void
-	{
-		parent::mountActions();
-	}
-	/**
-	 * Mount the controller classes
-	 *
-	 * @return void
-	 */
-	protected function mountControllers(): void
-	{
-		parent::mountControllers();
 	}
 }

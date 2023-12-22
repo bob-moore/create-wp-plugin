@@ -13,6 +13,8 @@
 	"repository": "https://github.com/MDMDevOps/{PROJECT}",
 	"bugs": "https://github.com/MDMDevOps/{PROJECT}/issues",
 	"devDependencies": {
+		"@wordpress/block-editor": "^12.16.0",
+		"@wordpress/blocks": "^12.25.0",
 		"@wordpress/scripts": "^26.17.0",
 		"autoprefixer": "^10.4.14",
 		"clean-webpack-plugin": "^4.0.0",

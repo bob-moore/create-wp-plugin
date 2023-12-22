@@ -34,7 +34,6 @@ require_once trailingslashit( plugin_dir_path( __FILE__ ) ) . 'deps/autoload.php
 
 Main::mount( [
     'package' => 'PLUGIN_SLUG',
-    'type'    => 'plugin',
     'assets'  => [ 'dir' => 'dist' ],
     'views'   => [ 'dir' => 'views' ]
 ] );
