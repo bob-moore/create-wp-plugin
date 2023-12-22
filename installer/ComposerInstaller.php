@@ -112,7 +112,7 @@ class ComposerInstaller
             $io->ask( 'Author Name: ' ),
             $io->ask( 'Author URI: ' ),
             $io->ask( 'Author Email: ' ),
-            $io->askConfirmation( 'Install Timber support? [y/n] ' ),
+            $io->askConfirmation( 'Install Timber support? [y/n] ' )
         );
 
         $installer->createComposerFile();
