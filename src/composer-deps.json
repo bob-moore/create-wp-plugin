@@ -14,12 +14,12 @@
 	},
     "repositories": [
         {
-            "url": "git@github.com:bob-moore/wp-framework-core.git",
-            "type": "git"
+		"url": "git@github.com:bob-moore/wp-framework-core.git",
+            	"type": "git"
         }
     ],
 	"require": {
 		"devkit/wp-framework-core": "dev-main",
-        "timber/timber": "^2.0"
+        	"timber/timber": "^2.0"
 	}
 }
