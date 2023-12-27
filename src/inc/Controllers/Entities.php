@@ -31,6 +31,22 @@ use Psr\Container\ContainerInterface;
  */
 class Entities extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\Controller
 {
+		/**
+	 * Array of entities to register
+	 *
+	 * @var array<string, array<string>>
+	 */
+	protected const ENTITIES = [
+		'blocks'     => [
+			'blocks/sample/block.json'
+		],
+		'taxonomies' => [
+			Entity\CustomTaxonomy::class,
+		],
+		'post_types' => [
+			Entity\CustomPostType::class,
+		],
+	];
 	/**
 	 * Get definitions that should be added to the service container
 	 *
@@ -38,58 +54,35 @@ class Entities extends WPCore\Abstracts\Mountable implements WPCore\Interfaces\C
 	 */
 	public static function getServiceDefinitions(): array
 	{
-		return [
-			Entity\CustomPostType::class => ContainerBuilder::autowire(),
-			Entity\CustomTaxonomy::class => ContainerBuilder::autowire(),
-			'post_types'                 => static::getPostTypeServiceAliases(),
-			'taxonomies'                 => static::getTaxonomyServiceAliases(),
-			'blocks'                     => static::getBlockServiceAliases(),
-		];
-	}
-	/**
-	 * Get service aliases for post types
-	 *
-	 * @return array<
-	 */
-	/**
-	 * Get service aliases for post types
-	 *
-	 * @return WPCore\DI\ArrayDefinitionHelper
-	 */
-	protected static function getPostTypeServiceAliases(): WPCore\DI\ArrayDefinitionHelper
-	{
-		return ContainerBuilder::array(
-			[
-				ContainerBuilder::get( Entity\CustomPostType::class ),
-			]
-		);
-	}
-	/**
-	 * Get service aliases for taxonomies
-	 *
-	 * @return WPCore\DI\ArrayDefinitionHelper
-	 */
-	protected static function getTaxonomyServiceAliases(): WPCore\DI\ArrayDefinitionHelper
-	{
-		return ContainerBuilder::array(
-			[
-				ContainerBuilder::get( Entity\CustomTaxonomy::class ),
-			]
-		);
-	}
-	/**
-	 * Get service aliases for blocks
-	 *
-	 * Should be a list of paths to block.json files
-	 *
-	 * @return WPCore\DI\ArrayDefinitionHelper
-	 */
-	protected static function getBlockServiceAliases(): WPCore\DI\ArrayDefinitionHelper
-	{
-		return ContainerBuilder::array(
-			[
-				'sample' => ContainerBuilder::string( '{config.dir}/{config.assets.dir}/blocks/sample/block.json' ),
-			]
-		);
+		$definitions = [];
+		/**
+		 * Loop over and register block definitions, and block factory.
+		 */
+		foreach ( self::ENTITIES['blocks'] as $definition ) {
+			$definitions[ $definition ] = ContainerBuilder::string( '{config.dir}/{config.assets.dir}/' . $definition );
+		}
+		$definitions['blocks'] = ContainerBuilder::factory( function( ContainerInterface $container ) {
+			return array_map( fn( $definition ) => $container->get( $definition ), self::ENTITIES['blocks'] );
+		} );
+		/**
+		 * Loop over and register taxonomy definitions, and taxonomy factory.
+		 */
+		foreach ( self::ENTITIES['taxonomies'] as $definition ) {
+			$definitions[ $definition ] = ContainerBuilder::autowire();
+		}
+		$definitions['taxonomies'] = ContainerBuilder::factory( function( ContainerInterface $container ) {
+			return array_map( fn( $definition ) => $container->get( $definition ), self::ENTITIES['taxonomies'] );
+		} );
+		/**
+		 * Loop over and register post type definitions, and post type factory.
+		 */
+		foreach ( self::ENTITIES['post_types'] as $definition ) {
+			$definitions[ $definition ] = ContainerBuilder::autowire();
+		}
+		$definitions['post_types'] = ContainerBuilder::factory( function( ContainerInterface $container ) {
+			return array_map( fn( $definition ) => $container->get( $definition ), self::ENTITIES['post_types'] );
+		} );
+
+		return $definitions;
 	}
 }
