@@ -13,12 +13,21 @@
     },
     "autoload": {
 		"psr-4": {
-			"Devkit\\Plugin\\Installer\\" : "./installer"
+			"Devkit\\PluginInstaller\\" : "./installer"
 		}
 	},
     "scripts": {
         "post-create-project-cmd" : [
-            "Devkit\\Plugin\\Installer\\ComposerInstaller::init"
+            "Devkit\\PluginInstaller\\ComposerInstaller::init"
 		]
-    }
+    },
+    "repositories": [
+		{
+			"url": "git@github.com:bob-moore/Devkit-Plugin-Boilerplate.git",
+			"type": "git"
+		}
+	],
+	"require": {
+		"devkit/plugin": "dev-main"
+	}
 }

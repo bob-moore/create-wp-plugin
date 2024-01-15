@@ -1,6 +1,6 @@
 <?php
 
-namespace Devkit\Plugin\Installer;
+namespace Devkit\PluginInstaller;
 
 use Composer\Script\Event;
 
@@ -115,13 +115,13 @@ class ComposerInstaller
             $io->askConfirmation( 'Install Timber support? [y/n] ' )
         );
 
-        $installer->createComposerFile();
+        // $installer->createComposerFile();
 
-        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/src/inc/*' );
+        // $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/src/inc/*' );
 
-        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/src/plugin.php' );
+        // $installer->replaceStrings( dirname( __DIR__, 1 ) . '/src/plugin.php' );
 
-        $installer->moveFiles();
+        // $installer->moveFiles();
 
         $io->write( 'Plugin installed, Enjoy!' );
     }
