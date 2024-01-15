@@ -160,7 +160,7 @@ class ComposerInstaller
 
             file_put_contents( $dir . '/vendor/devkit/plugin/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 
-            $this->removeLine( $dir . '/vendor/devkit/plugin/src/inc/Main.php', "Controllers\\Compiler::class" );
+            $this->removeLine( $dir . '/vendor/devkit/plugin/inc/Main.php', "Controllers\\Compiler::class" );
         }
     }
     /**
