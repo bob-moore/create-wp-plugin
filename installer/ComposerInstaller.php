@@ -115,13 +115,13 @@ class ComposerInstaller
             $io->askConfirmation( 'Install Timber support? [y/n] ' )
         );
 
-        // $installer->createComposerFile();
+        $installer->createComposerFile();
 
-        // $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/src/inc/*' );
+        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/vendor/devkit/plugins/src/inc/*' );
 
-        // $installer->replaceStrings( dirname( __DIR__, 1 ) . '/src/plugin.php' );
+        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/vendor/devkit/plugins/src/plugin.php' );
 
-        // $installer->moveFiles();
+        $installer->moveFiles();
 
         $io->write( 'Plugin installed, Enjoy!' );
     }
@@ -134,7 +134,7 @@ class ComposerInstaller
     {
         $dir = dirname( __DIR__, 1 );
 
-        $composer = json_decode( file_get_contents( $dir . '/src/composer.json' ), true );
+        $composer = json_decode( file_get_contents( $dir . '/vendor/devkit/plugins/src/composer.json' ), true );
 
         $name = explode( '\\', $composer['name'] );
 
@@ -151,16 +151,16 @@ class ComposerInstaller
         ];
         $composer['extra']['wpify-scoper']['prefix'] = "{$this->plugin_namespace}\\Deps";
 
-        file_put_contents( $dir . '/src/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+        file_put_contents( $dir . '/vendor/devkit/plugins/src/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 
         if ( ! $this->timber_support ) {
-            $composer_deps = json_decode( file_get_contents( $dir . '/src/composer-deps.json' ), true );
+            $composer_deps = json_decode( file_get_contents( $dir . '/vendor/devkit/plugins/src/composer-deps.json' ), true );
 
             unset( $composer_deps['require']['timber/timber'] );
 
-            file_put_contents( $dir . '/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+            file_put_contents( $dir . '/vendor/devkit/plugins/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 
-            $this->removeLine( $dir . '/src/inc/Main.php', "Controllers\\Compiler::class" );
+            $this->removeLine( $dir . '/vendor/devkit/plugins/src/inc/Main.php', "Controllers\\Compiler::class" );
         }
     }
     /**
@@ -172,7 +172,7 @@ class ComposerInstaller
      */
     public function createPluginFiles( string $path = '' ): void
     {
-        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/src/inc/*' : $path;
+        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/vendor/devkit/plugins/src/inc/*' : $path;
 
         foreach ( glob( $path ) as $file )
         {
@@ -220,42 +220,39 @@ class ComposerInstaller
      */
     public function moveFiles(): void
     {
-        shell_exec( 'mkdir ./temp' );
-        shell_exec( 'mv ./src/* ./temp' );
-        shell_exec( 'rm -rf ./src' );
         shell_exec( 'rm ./composer.lock && rm composer.json && rm packages.json' );
-        shell_exec( 'mv ./temp/* ./ && rm -rf ./temp' );
+        shell_exec( 'mv ./vendor/devkit/plugins/src/* ./ && rm -rf ./vendor' );
 
         if ( ! $this->timber_support ) {
             shell_exec( 'rm -f ./inc/Controllers/Compiler.php' );
             shell_exec( 'rm -f ./inc/Services/Compiler.php' );
         }
 
-        shell_exec( 'composer install' );
-        shell_exec( 'cat <<END >plugin.code-workspace
-        {
-            "folders": [
-                {
-                    "path": "."
-                }
-            ],
-            "settings": {
-                "intelephense.environment.includePaths" : [],
-                "phpcs.enable": true,
-                "phpcs.standard": "./tests/phpcs.xml",
-                "phpcs.executablePath": "./vendor/bin/phpcs",
-                "phpcs.showWarnings": true,
-                "phpcs.showSources": true,
-                "phpcs.composerJsonPath": "./composer.json",
-                "phpcs.errorSeverity": 6,
-                "php.suggest.basic": true,
-                "git.ignoreLimitWarning": true,
-                "editor.rulers": [
-                    80,
-                    120
-                ]
-            }
-        }' );
+        shell_exec( 'composer install -d ./src' );
+        // shell_exec( 'cat <<END >plugin.code-workspace
+        // {
+        //     "folders": [
+        //         {
+        //             "path": "."
+        //         }
+        //     ],
+        //     "settings": {
+        //         "intelephense.environment.includePaths" : [],
+        //         "phpcs.enable": true,
+        //         "phpcs.standard": "./tests/phpcs.xml",
+        //         "phpcs.executablePath": "./vendor/bin/phpcs",
+        //         "phpcs.showWarnings": true,
+        //         "phpcs.showSources": true,
+        //         "phpcs.composerJsonPath": "./composer.json",
+        //         "phpcs.errorSeverity": 6,
+        //         "php.suggest.basic": true,
+        //         "git.ignoreLimitWarning": true,
+        //         "editor.rulers": [
+        //             80,
+        //             120
+        //         ]
+        //     }
+        // }' );
         shell_exec( 'rm -rf ./installer' );
     }
     /**
@@ -272,14 +269,21 @@ class ComposerInstaller
         }
 
         $replacements = [
-            'PLUGIN_NAMESPACE'   => $this->plugin_namespace,
-            'PLUGIN_NAME'        => $this->plugin_name,
-            'PLUGIN_SLUG'        => $this->plugin_slug,
-            'PLUGIN_URI'         => $this->plugin_uri,
-            'PLUGIN_DESCRIPTION' => $this->description,
-            'AUTHOR_NAME'        => $this->author_name,
-            'AUTHOR_URI'         => $this->author_uri,
-            'AUTHOR_EMAIL'       => $this->author_email,
+            'PLUGIN_NAMESPACE'                                       => $this->plugin_namespace,
+            'PLUGIN_NAME'                                            => $this->plugin_name,
+            'PLUGIN_SLUG'                                            => $this->plugin_slug,
+            'PLUGIN_URI'                                             => $this->plugin_uri,
+            'PLUGIN_DESCRIPTION'                                     => $this->description,
+            'AUTHOR_NAME'                                            => $this->author_name,
+            'AUTHOR_URI'                                             => $this->author_uri,
+            'AUTHOR_EMAIL'                                           => $this->author_email,
+            'Devkit\Plugin'                                          => $this->plugin_namespace,
+            'Devkit Plugin Boilerplate'                              => $this->plugin_name,
+            'devkit_plugin'                                          => $this->plugin_slug,
+            'https://github.com/bob-moore/Devkit-Plugin-Boilerplate' => $this->plugin_uri,
+            'Bob Moore'                                              => $this->author_name,
+            'https://www.bobmoore.dev'                               => $this->author_uri,
+            'bob@bobmoore.dev'                                       => $this->author_email,
         ];
 
         $content = file_get_contents( $file );
