@@ -117,9 +117,9 @@ class ComposerInstaller
 
         $installer->createComposerFile();
 
-        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/vendor/devkit/plugins/src/inc/*' );
+        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/src/inc/*' );
 
-        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/vendor/devkit/plugins/src/plugin.php' );
+        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/src/plugin.php' );
 
         $installer->moveFiles();
 
@@ -134,7 +134,7 @@ class ComposerInstaller
     {
         $dir = dirname( __DIR__, 1 );
 
-        $composer = json_decode( file_get_contents( $dir . '/vendor/devkit/plugins/src/composer.json' ), true );
+        $composer = json_decode( file_get_contents( $dir . '/vendor/devkit/plugin/src/composer.json' ), true );
 
         $name = explode( '\\', $composer['name'] );
 
@@ -151,16 +151,16 @@ class ComposerInstaller
         ];
         $composer['extra']['wpify-scoper']['prefix'] = "{$this->plugin_namespace}\\Deps";
 
-        file_put_contents( $dir . '/vendor/devkit/plugins/src/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+        file_put_contents( $dir . '/vendor/devkit/plugin/src/composer.json', json_encode( $composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 
         if ( ! $this->timber_support ) {
-            $composer_deps = json_decode( file_get_contents( $dir . '/vendor/devkit/plugins/src/composer-deps.json' ), true );
+            $composer_deps = json_decode( file_get_contents( $dir . '/vendor/devkit/plugin/src/composer-deps.json' ), true );
 
             unset( $composer_deps['require']['timber/timber'] );
 
-            file_put_contents( $dir . '/vendor/devkit/plugins/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+            file_put_contents( $dir . '/vendor/devkit/plugin/src/composer-deps.json', json_encode( $composer_deps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 
-            $this->removeLine( $dir . '/vendor/devkit/plugins/src/inc/Main.php', "Controllers\\Compiler::class" );
+            $this->removeLine( $dir . '/vendor/devkit/plugin/src/inc/Main.php', "Controllers\\Compiler::class" );
         }
     }
     /**
@@ -172,7 +172,7 @@ class ComposerInstaller
      */
     public function createPluginFiles( string $path = '' ): void
     {
-        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/vendor/devkit/plugins/src/inc/*' : $path;
+        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/src/inc/*' : $path;
 
         foreach ( glob( $path ) as $file )
         {
@@ -221,7 +221,7 @@ class ComposerInstaller
     public function moveFiles(): void
     {
         shell_exec( 'rm ./composer.lock && rm composer.json && rm packages.json' );
-        shell_exec( 'mv ./vendor/devkit/plugins/src/* ./ && rm -rf ./vendor' );
+        shell_exec( 'mv ./vendor/devkit/plugin/src/* ./ && rm -rf ./vendor' );
 
         if ( ! $this->timber_support ) {
             shell_exec( 'rm -f ./inc/Controllers/Compiler.php' );
