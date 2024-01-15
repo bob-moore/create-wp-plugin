@@ -73,14 +73,14 @@ class ComposerInstaller
      * @param string $author_email : Author email to set.
      */
     protected function __construct(
-        string $plugin_namespace = '',
-        string $plugin_name = '',
-        string $plugin_slug = '',
-        string $plugin_uri = '',
-        string $description = '',
-        string $author_name = '',
-        string $author_uri = '',
-        string $author_email = '',
+        string $plugin_namespace,
+        string $plugin_name,
+        string $plugin_slug,
+        string $plugin_uri,
+        string $description,
+        string $author_name,
+        string $author_uri,
+        string $author_email,
         bool $timber_support
     )
     {
@@ -222,13 +222,14 @@ class ComposerInstaller
     {
         shell_exec( 'rm ./composer.lock && rm composer.json && rm packages.json' );
         shell_exec( 'mv ./vendor/devkit/plugin/* ./ && rm -rf ./vendor' );
+        shell_exec( 'rm composer.json && rm .gitignore' );
 
         if ( ! $this->timber_support ) {
             shell_exec( 'rm -f ./inc/Controllers/Compiler.php' );
             shell_exec( 'rm -f ./inc/Services/Compiler.php' );
         }
 
-        // shell_exec( 'composer install -d ./src' );
+        shell_exec( 'composer install -d ./src' );
         // shell_exec( 'cat <<END >plugin.code-workspace
         // {
         //     "folders": [
