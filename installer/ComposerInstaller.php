@@ -73,14 +73,14 @@ class ComposerInstaller
      * @param string $author_email : Author email to set.
      */
     protected function __construct(
-        string $plugin_namespace,
-        string $plugin_name,
-        string $plugin_slug,
-        string $plugin_uri,
-        string $description,
-        string $author_name,
-        string $author_uri,
-        string $author_email,
+        // string $plugin_namespace = '',
+        // string $plugin_name = '',
+        // string $plugin_slug = '',
+        // string $plugin_uri = '',
+        // string $description = '',
+        // string $author_name = '',
+        // string $author_uri = '',
+        // string $author_email = '',
         bool $timber_support
     )
     {
@@ -104,22 +104,22 @@ class ComposerInstaller
         $io = $event->getIO();
 
         $installer = new ComposerInstaller( 
-            $io->ask( 'Namespace: ' ),
-            $io->ask( 'Plugin Name: ' ),
-            $io->ask( 'Slug: ' ),
-            $io->ask( 'Plugin URI: ' ),
-            $io->ask( 'Plugin Description: ' ),
-            $io->ask( 'Author Name: ' ),
-            $io->ask( 'Author URI: ' ),
-            $io->ask( 'Author Email: ' ),
+            // $io->ask( 'Namespace: ' ),
+            // $io->ask( 'Plugin Name: ' ),
+            // $io->ask( 'Slug: ' ),
+            // $io->ask( 'Plugin URI: ' ),
+            // $io->ask( 'Plugin Description: ' ),
+            // $io->ask( 'Author Name: ' ),
+            // $io->ask( 'Author URI: ' ),
+            // $io->ask( 'Author Email: ' ),
             $io->askConfirmation( 'Install Timber support? [y/n] ' )
         );
 
         $installer->createComposerFile();
 
-        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/src/inc/*' );
+        $installer->createPluginFiles( dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/inc/*' );
 
-        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/src/plugin.php' );
+        $installer->replaceStrings( dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/plugin.php' );
 
         $installer->moveFiles();
 
@@ -172,7 +172,7 @@ class ComposerInstaller
      */
     public function createPluginFiles( string $path = '' ): void
     {
-        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/src/inc/*' : $path;
+        $path = empty( $path ) ? dirname( __DIR__, 1 ) . '/vendor/devkit/plugin/inc/*' : $path;
 
         foreach ( glob( $path ) as $file )
         {
@@ -221,14 +221,14 @@ class ComposerInstaller
     public function moveFiles(): void
     {
         shell_exec( 'rm ./composer.lock && rm composer.json && rm packages.json' );
-        shell_exec( 'mv ./vendor/devkit/plugin/src/* ./ && rm -rf ./vendor' );
+        shell_exec( 'mv ./vendor/devkit/plugin/* ./ && rm -rf ./vendor' );
 
         if ( ! $this->timber_support ) {
             shell_exec( 'rm -f ./inc/Controllers/Compiler.php' );
             shell_exec( 'rm -f ./inc/Services/Compiler.php' );
         }
 
-        shell_exec( 'composer install -d ./src' );
+        // shell_exec( 'composer install -d ./src' );
         // shell_exec( 'cat <<END >plugin.code-workspace
         // {
         //     "folders": [
