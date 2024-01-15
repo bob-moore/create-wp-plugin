@@ -147,7 +147,7 @@ class ComposerInstaller
         $composer['description'] = $this->description;
 
         $composer['autoload']['psr-4'] = [
-            $this->plugin_namespace . '\\' => 'inc/'
+            $this->plugin_namespace . '\\' => '../inc'
         ];
         $composer['extra']['wpify-scoper']['prefix'] = "{$this->plugin_namespace}\\Deps";
 
