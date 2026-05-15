@@ -1,263 +1,286 @@
-# Placeholder Plugin Framework
+# Create WP Plugin
 
-This repository is a starter WordPress plugin framework built around [`bmd/wp-framework`](https://github.com/bob-moore/WP-Framework). It is intentionally small: the goal is to show the architecture, dependency scoping, and extension patterns without pretending to be a finished product.
+A WordPress plugin starter for building a namespaced plugin with a small framework layer, Composer dependency scoping, WordPress block tooling, and PHP test/lint coverage.
 
-Use it as a starting point for a plugin, an MU plugin, or a theme-adjacent package that wants a clean service container, predictable WordPress hook registration, and scoped Composer dependencies.
+The starter is designed to be bootstrapped into a real plugin with:
 
-## What This Demonstrates
+```bash
+composer run create-plugin
+```
 
-- A root plugin bootstrap in [`Plugin.php`](Plugin.php).
-- A framework entry point in [`includes/Main.php`](includes/Main.php).
-- Controller classes that orchestrate dependency registration and WordPress hooks.
-- Provider classes that register WordPress features such as blocks, shortcodes, and taxonomies.
-- Processor classes that transform data or markup.
-- Context handlers for view-specific behavior.
-- A scoped Timber/Twig compiler using [`wpify/scoper`](https://github.com/wpify/scoper), [`timber/timber`](https://github.com/timber/timber), and [`twig/twig`](https://github.com/twigphp/Twig).
-- A minimal static block in [`src/example-block`](src/example-block).
-- Basic PHPUnit examples using [`10up/wp_mock`](https://github.com/10up/wp_mock).
+After bootstrapping, the placeholder package name, PHP namespace, plugin metadata, block namespace, text domain, and main plugin file are rewritten for your plugin.
 
-## Key Dependencies
+## What Is Included
 
-Runtime dependencies that are bundled and scoped are listed in [`composer-deps.json`](composer-deps.json):
+- A WordPress plugin bootstrap file: `Plugin.php`.
+- First-party plugin code under `inc/`.
+- A scoped runtime framework dependency generated into `vendor/scoped`.
+- A separate runtime dependency manifest: `composer-deps.json`.
+- A root Composer setup for development tools, tests, and scoping.
+- WordPress block/editor asset tooling through `@wordpress/scripts`.
+- Example block source under `src/example-block`.
+- PHPUnit tests focused on framework conformance, plus one example provider test.
+- PHPStan and PHPCS configuration under `tests/`.
 
-- [`bmd/wp-framework`](https://github.com/bob-moore/WP-Framework): the underlying controller/module/service-container framework.
-- [`timber/timber`](https://github.com/timber/timber): WordPress-friendly Twig rendering.
-- [`twig/twig`](https://github.com/twigphp/Twig): template engine used by Timber.
+## Requirements
 
-Development dependencies are listed in [`composer.json`](composer.json) and [`package.json`](package.json):
+- PHP 8.2 or newer for the plugin runtime.
+- Composer.
+- Node and npm for block and asset builds.
+- WordPress 6.0 or newer.
 
-- [`wpify/scoper`](https://github.com/wpify/scoper): prefixes runtime Composer dependencies into this plugin namespace.
-- [`PHP-DI`](https://php-di.org/): dependency injection container used by WPFramework.
-- [`@wordpress/scripts`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-scripts/): build tooling for block and asset compilation.
-- [`@wordpress/blocks`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-blocks/) and [`@wordpress/block-editor`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/): block registration and editor helpers.
+The Composer platform is currently pinned to PHP 8.1 for dependency resolution, while the plugin header requires PHP 8.2.
 
-## Boot Flow
+## Create A Plugin
 
-The plugin starts in [`Plugin.php`](Plugin.php):
+Install dependencies first:
 
-1. WordPress loads the plugin file.
-2. The plugin loads scoped Composer autoloaders from `vendor/scoped`.
-3. The plugin loads the development/root autoloader from `vendor/autoload.php`.
-4. A config array is passed into `Placeholder\Plugin\Main`.
-5. `Main::mount()` builds the service container and mounts registered controllers.
+```bash
+composer install
+npm install
+```
 
-The important config keys are:
+Then run the bootstrap command interactively:
 
-- `config.package`: the package slug used to build hook names, currently `placeholder_plugin`.
-- `config.dir`: plugin root path.
-- `config.url`: plugin root URL.
+```bash
+composer run create-plugin
+```
+
+For a non-interactive setup, pass options after `--`:
+
+```bash
+composer run create-plugin -- \
+	--name="My Plugin" \
+	--slug="my-plugin" \
+	--namespace="Acme\\MyPlugin" \
+	--package="acme/my-plugin" \
+	--description="A custom WordPress plugin." \
+	--author="Acme Team" \
+	--author-email="dev@example.com" \
+	--plugin-uri="https://example.com/my-plugin" \
+	--author-uri="https://example.com" \
+	--block-namespace="my-plugin" \
+	--main-file="my-plugin.php"
+```
+
+Useful options:
+
+- `--dry-run`: show what would change without writing files.
+- `--force`: allow overwriting an existing target main plugin file.
+- `--help`: print all supported options.
+
+The bootstrap script rewrites placeholders across PHP, JSON, XML, NEON, SCSS, TS, TSX, JS, Markdown, and related project files. It skips generated and local-only directories such as `vendor`, `node_modules`, `build`, `.git`, and `.phpunit.cache`.
+
+After bootstrapping, refresh autoloads and build assets:
+
+```bash
+composer dump-autoload
+composer install
+npm run compile
+```
+
+`composer install` is important because WPify Scoper is configured with `autorun: true`, so it builds scoped runtime dependencies into `vendor/scoped`.
+
+## Bootstrapping Flow
+
+The plugin starts in `Plugin.php`.
+
+At runtime, the bootstrap file:
+
+1. Exits if WordPress has not loaded `ABSPATH`.
+2. Loads `vendor/scoped/autoload.php`.
+3. Loads `vendor/scoped/scoper-autoload.php`.
+4. Loads the root development autoloader from `vendor/autoload.php`.
+5. Builds a config array with:
+   - `config.package`
+   - `config.dir`
+   - `config.url`
+6. Instantiates `Placeholder\Plugin\Main`.
+7. Calls `$plugin->mount()`.
+
+`inc/Main.php` extends the scoped framework `Main` class and declares the plugin controllers that should be registered with the framework service locator.
+
+## Project Layout
+
+```text
+Plugin.php                 Main WordPress plugin bootstrap.
+composer.json              Development dependencies, scripts, autoloading, scoper config.
+composer-deps.json         Runtime dependencies that should be scoped and bundled.
+inc/                       First-party PHP plugin code.
+inc/Context/               Plugin-specific context handlers.
+inc/Controllers/           Controller classes that register services and hooks.
+inc/Processors/            Content/data processors mounted by controllers.
+inc/Providers/             WordPress feature providers.
+scoper/                    Custom scoper support classes.
+scripts/create-plugin.php  Bootstrap command implementation.
+src/                       Block and asset source files.
+tests/                     PHPStan, PHPCS, and PHPUnit configuration/tests.
+vendor/scoped/             Generated scoped runtime dependencies.
+```
 
 ## Architecture
 
-This project uses a small set of class roles. Keeping these roles distinct is the point of the framework.
+The package follows the class roles provided by `bmd/wp-framework`.
 
 ### Main
 
-[`includes/Main.php`](includes/Main.php) extends `Bmd\WPFramework\Main`.
+`inc/Main.php` defines the plugin package and registers controller classes with the framework.
 
-`Main` answers two questions:
-
-- Which controllers are part of this package?
-- Which controller classes should be autowired into the service container?
-
-It should stay boring. Avoid business logic here.
+Keep this class focused on wiring. Feature behavior belongs in controllers, providers, processors, services, or context handlers.
 
 ### Controllers
 
-Controllers live in [`includes/Controllers`](includes/Controllers).
+Controllers live in `inc/Controllers`.
 
-Controllers do not do the actual work. They orchestrate registration.
+Controllers coordinate registration. They can:
 
-A controller typically:
+- Add service definitions through `getServiceDefinitions()`.
+- Receive dependencies through `#[Inject]`.
+- Register WordPress hooks, filters, and shortcodes.
+- Delegate work to providers, processors, and context handlers.
 
-- Adds service definitions via `getServiceDefinitions()`.
-- Receives dependencies through `#[Inject]`.
-- Registers WordPress actions, filters, shortcodes, or dispatch hooks.
-- Delegates actual behavior to a provider, processor, service, or context handler.
+Current controllers:
 
-Examples:
-
-- [`ProviderController`](includes/Controllers/ProviderController.php) wires blocks, shortcodes, and taxonomies.
-- [`ServiceController`](includes/Controllers/ServiceController.php) wires the Timber/Twig compiler to package-specific filters and actions.
-- [`ProcessorController`](includes/Controllers/ProcessorController.php) wires block rendering through a processor.
-- [`ContextController`](includes/Controllers/ContextController.php) wires view-specific context handlers.
-
-If a controller starts parsing data, rendering templates, querying posts, or making decisions specific to a feature, move that behavior into a module class.
+- `Controllers\ServiceController`
+- `Controllers\ContextController`
+- `Controllers\ProcessorController`
+- `Controllers\ProviderController`
 
 ### Providers
 
-Providers live in [`includes/Providers`](includes/Providers).
+Providers live in `inc/Providers`.
 
-Providers register WordPress features. They are the place for feature-level registration methods that a controller can mount.
+Providers register WordPress features. The starter includes examples for:
 
-Current examples:
+- Blocks: `Providers\Blocks::registerBlocks()`
+- Shortcodes: `Providers\Shortcodes`
+- Taxonomies: `Providers\Taxonomies`
 
-- [`Providers\Blocks`](includes/Providers/Blocks.php): finds built block metadata in `build/blocks/**/block.json` and calls `register_block_type()`.
-- [`Providers\Shortcodes`](includes/Providers/Shortcodes.php): renders `[timber]...[/timber]` shortcode content through the compiler filter.
-- [`Providers\Taxonomies`](includes/Providers/Taxonomies.php): registers example page taxonomies.
-
-Providers can contain feature configuration, but keep them focused. A provider should register a thing; a processor/service should do deeper work.
-
-### Services
-
-Services live in [`includes/Services`](includes/Services).
-
-Services are reusable capabilities that other modules can call through hooks or dependency injection.
-
-Current example:
-
-- [`Services\Compiler`](includes/Services/Compiler.php): wraps scoped Timber/Twig rendering and exposes it through package-specific filters and actions.
-
-The compiler is deliberately kept because it demonstrates the scoped dependency pattern:
-
-```php
-use Placeholder\Plugin\Timber\Timber;
-use Placeholder\Plugin\Twig\Error\SyntaxError;
-```
-
-Those classes come from dependencies prefixed by WPify Scoper into the plugin namespace.
+The only behavior-specific PHPUnit example currently kept is the blocks provider registration test. The other tests intentionally check framework conformance so boilerplate examples can be removed without breaking the suite.
 
 ### Processors
 
-Processors live in [`includes/Processors`](includes/Processors).
+Processors live in `inc/Processors`.
 
-Processors transform content or data. They should not register themselves with WordPress. A controller decides when a processor is mounted.
-
-Current example:
-
-- [`Processors\Blocks`](includes/Processors/Blocks.php): looks for inline Twig syntax in selected core block output and sends it through the compiler filter.
-
-The pattern is:
-
-```php
-return apply_filters( "{$this->package}_compile_string", $block_content, $block );
-```
-
-That keeps the block processor decoupled from Timber. It only knows that the package has a compile-string extension point.
+Processors transform content or data. They should not mount themselves to WordPress. A controller owns the hook registration.
 
 ### Context Handlers
 
-Context handlers live in [`includes/Context`](includes/Context).
+Context handlers live in `inc/Context`.
 
-Context handlers are for specific WordPress views or execution contexts: frontend, admin, login, editor, REST, CLI, and so on. They are the right place for context-specific assets and behavior.
+`Context\Handlers` is an enum of plugin-specific context handlers. `Context\Editor` extends the framework admin context handler and shows where editor-only assets can be registered.
 
-The current example keeps only a login handler:
+## Scoped Runtime Dependencies
 
-- [`Context\Handlers`](includes/Context/Handlers.php): enum of package-specific context handlers.
-- [`Context\Login`](includes/Context/Login.php): extends the WPFramework login context handler.
+Runtime dependencies belong in `composer-deps.json`, not in the root `composer.json`.
 
-The framework `ContextController` dispatches context handlers and mounts their assets. This package extends that behavior only where an example is useful.
+The root `composer.json` is for development tooling:
 
-## Dependency Injection
+- PHPUnit
+- PHPStan
+- PHPCS/WPCS
+- WPify Scoper
+- WP Mock
 
-WPFramework uses [`PHP-DI`](https://php-di.org/) behind its `ServiceLocator`.
-
-The common pattern is:
-
-```php
-public static function getServiceDefinitions(): array
-{
-	return [
-		SomeClass::class => ServiceLocator::autowire(),
-	];
-}
-```
-
-When a controller is added to the container, WPFramework also asks that controller for its service definitions. This lets controller registration cascade into providers, processors, context handlers, and services without manually instantiating them.
-
-Dependencies can be injected with PHP attributes:
-
-```php
-#[Inject]
-public function mountBlocks( Providers\Blocks $provider ): void
-{
-	add_action( 'init', [ $provider, 'registerBlocks' ] );
-}
-```
-
-The controller owns the hook. The provider owns the behavior.
-
-## Scoped Dependencies
-
-This boilerplate uses [`wpify/scoper`](https://github.com/wpify/scoper) to prefix runtime dependencies into the plugin namespace.
-
-Configuration lives in [`composer.json`](composer.json):
+The scoped dependency manifest currently requires:
 
 ```json
-"wpify-scoper": {
-	"prefix": "Placeholder\\Plugin",
-	"slug": "placeholder_plugin",
-	"folder": "./vendor/scoped",
-	"composerjson": "composer-deps.json",
-	"composerlock": "composer-deps.lock",
-	"autorun": true
+{
+	"require": {
+		"bmd/wp-framework": "*"
+	}
 }
 ```
 
-Runtime dependencies are declared separately in [`composer-deps.json`](composer-deps.json). This keeps development tooling separate from code that should be shipped with the plugin.
+WPify Scoper reads `composer-deps.json` and writes scoped runtime code to `vendor/scoped`.
 
-After `composer install`, scoped dependencies are written to `vendor/scoped`.
+The scoper configuration lives in `composer.json`:
 
-## Hooks Exposed By The Compiler
-
-[`ServiceController`](includes/Controllers/ServiceController.php) exposes the compiler through package-specific hooks:
-
-- `placeholder_plugin_timber/locations`
-- `placeholder_plugin_compile_template`
-- `placeholder_plugin_compile_string`
-- `placeholder_plugin_render_template`
-- `placeholder_plugin_render_string`
-
-Examples of consumers:
-
-- [`Providers\Shortcodes`](includes/Providers/Shortcodes.php) uses `placeholder_plugin_compile_string` for `[timber]`.
-- [`Processors\Blocks`](includes/Processors/Blocks.php) uses `placeholder_plugin_compile_string` for supported block content containing Twig delimiters.
-
-This is the preferred pattern for cross-module collaboration in this starter: expose a package hook, then let another module consume it.
-
-## Blocks
-
-Source files live in [`src/example-block`](src/example-block).
-
-The block is intentionally simple:
-
-- `block.json` declares `placeholder/example-block`.
-- `index.tsx` renders `Hello World` in both `edit` and `save`.
-- There is no PHP render file.
-
-This is not meant to teach block development. It exists to show where block source lives and how built block metadata is auto-registered by `Providers\Blocks`.
-
-Build output goes to `build/blocks`, and `Providers\Blocks` registers blocks by globbing:
-
-```php
-build/blocks/**/block.json
+```json
+{
+	"extra": {
+		"wpify-scoper": {
+			"prefix": "Placeholder\\Plugin",
+			"slug": "placeholder_plugin",
+			"folder": "./vendor/scoped",
+			"globals": [
+				"wordpress",
+				"woocommerce"
+			],
+			"composerjson": "composer-deps.json",
+			"composerlock": "composer-deps.lock",
+			"autorun": true
+		}
+	}
+}
 ```
 
-## Commands
+After you bootstrap a plugin, `prefix` and `slug` are rewritten to your namespace and package slug.
 
-Install PHP dependencies:
+## Adding Scoped Dependencies
+
+Add third-party runtime packages to `composer-deps.json`:
+
+```json
+{
+	"require": {
+		"bmd/wp-framework": "*",
+		"vendor/package": "^1.0"
+	}
+}
+```
+
+Then run:
 
 ```bash
 composer install
 ```
 
-Install JS dependencies:
+Because `wpify-scoper` has `autorun` enabled, Composer will install and scope the runtime dependencies into `vendor/scoped`.
 
-```bash
-npm install
+Use scoped class names in plugin code. For example, after bootstrapping with the namespace `Acme\MyPlugin`, a dependency class originally named:
+
+```php
+Vendor\Package\Client
 ```
 
-Build assets and blocks:
+is referenced from plugin code as:
+
+```php
+Acme\MyPlugin\Vendor\Package\Client
+```
+
+Avoid adding runtime libraries to the root `composer.json` unless they are development-only tools. Code that ships with the plugin should go through `composer-deps.json` so it is scoped and bundled.
+
+## Blocks And Assets
+
+Source files live in `src/`.
+
+The example block lives in:
+
+```text
+src/example-block
+```
+
+Build output is generated by `@wordpress/scripts`. `Providers\Blocks` registers built block metadata by globbing:
+
+```text
+build/blocks/**/block.json
+```
+
+Compile assets:
 
 ```bash
 npm run compile
 ```
 
-Run PHP unit tests:
+During development, run:
 
 ```bash
-composer run phpunit
+npm run start
 ```
+
+## Testing And Quality Checks
 
 Run PHPStan:
 
@@ -271,35 +294,31 @@ Run PHPCS:
 composer run phpsniff
 ```
 
-## Files Intentionally Ignored
+Auto-fix PHPCS issues where possible:
 
-This repository is boilerplate, not a distributed package. Generated artifacts are ignored:
+```bash
+composer run phpsniff:fix
+```
 
-- `build/`
-- `vendor/`
-- `node_modules/`
-- `composer.lock`
-- `composer-deps.lock`
-- `package-lock.json`
+Run PHPUnit:
 
-Projects created from this starter can choose whether to commit lockfiles and build output based on their own deployment process.
+```bash
+composer run phpunit
+```
 
-## Adapting This Starter
+Run the full JS/CSS build pipeline:
 
-At minimum, replace:
+```bash
+npm run build
+```
 
-- Composer package name: `placeholder/plugin`
-- PHP namespace: `Placeholder\Plugin`
-- Package slug/text domain: `placeholder_plugin`
-- Plugin header values in `Plugin.php`
-- Block namespace: `placeholder/example-block`
+## Packaging Notes
 
-Then add real modules by role:
+The plugin must include:
 
-- Need to register a WordPress feature? Add a provider and mount it in `ProviderController`.
-- Need to transform content or data? Add a processor and mount it in `ProcessorController`.
-- Need a reusable capability? Add a service and expose it through `ServiceController`.
-- Need behavior for a specific view? Add a context handler and list it in `Context\Handlers`.
-- Need a new controller? Add it to `Main::getServiceDefinitions()`.
+- The main plugin file generated from `Plugin.php`.
+- `inc/`.
+- `vendor/`, including `vendor/scoped/`.
+- Built assets under `build/` if the plugin uses blocks or compiled scripts/styles.
 
-Keep controllers thin. Let modules do the work. That one rule keeps the project easy to scan and easy to adapt.
+Do not rely on unscoped runtime packages being available in another plugin or theme. Dependencies that ship with this plugin should be declared in `composer-deps.json` and scoped into `vendor/scoped`.
