@@ -1,0 +1,20 @@
+{
+	"name": "placeholder/plugin-dependencies",
+	"description": "Dependencies for Placeholder Plugin",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"optimize-autoloader" : true,
+		"platform" :
+		{
+			"php": "8.1"
+		},
+		"allow-plugins": {
+			"composer/installers": true,
+			"wpify/scoper": true
+		}
+	},
+	"require": {
+		"bmd/wp-framework": "*"
+	}
+}
