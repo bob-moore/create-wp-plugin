@@ -20,10 +20,16 @@
     },
     "autoload": {
         "psr-4": {
-            "Placeholder\\Plugin\\": "inc",
-            "Placeholder\\Plugin\\PHPUnit\\": "tests/phpunit",
-            "Placeholder\\Plugin\\Scoper\\": "scoper"
+            "Placeholder\\Plugin\\": "inc"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+             "Placeholder\\Plugin\\PHPUnit\\": "tests/phpunit"
+        }
+    },
+    "require": {
+        "bmd/wp-framework": "*"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.7",
@@ -49,6 +55,18 @@
         "phpunit": "./vendor/bin/phpunit --configuration ./tests/phpunit.xml --verbose"
     },
     "extra": {
+        "plugin-release": {
+            "files": [
+                "build",
+                "inc",
+                "README.md",
+                "readme.md",
+                "readme.txt",
+                "LICENSE",
+                "license.txt",
+                "Plugin.php"
+            ]
+        },
         "wpify-scoper": {
             "prefix": "Placeholder\\Plugin",
             "slug": "placeholder_plugin",
