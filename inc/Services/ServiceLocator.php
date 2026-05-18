@@ -56,11 +56,17 @@ class ServiceLocator
 	/**
 	 * Initializes a new instance of the ServiceLocator class.
 	 */
-	public function __construct()
+	public function __construct(
+		bool $should_compile = false
+	)
 	{
 		$this->container_builder = new ContainerBuilder();
 		$this->container_builder->useAutowiring( \true );
 		$this->container_builder->useAttributes( \true );
+
+		if ( $should_compile ) {
+			$this->container_builder->enableCompilation( dirname( __DIR__, 1 ) . '/cache' );
+		}
 	}
 	/**
 	 * Add an array of service definitions to the container.
@@ -87,17 +93,14 @@ class ServiceLocator
 	/**
 	 * Build the container
 	 *
-	 * @param bool $should_compile Whether to enable compilation for the container. Defaults to false.
+	 * Compilation is configured at construction time via the $should_compile flag.
+	 * Call this once all definitions have been added.
 	 *
 	 * @return void
 	 */
-	public function build( $should_compile = false ): void
+	public function build(): void
 	{
 		$this->container_builder->addDefinitions( $this->service_definitions );
-
-		if ( $should_compile ) {
-			$this->container_builder->enableCompilation( dirname( __DIR__ ) . '/cache' );
-		}
 		$this->container = $this->container_builder->build();
 	}
 	/**

@@ -37,27 +37,29 @@ class Main extends Abstracts\Controller
 	 * Public constructor
 	 *
 	 * @param array<string, mixed> $config : optional configuration array.
+	 * @param bool                 $should_compile : enable PHP-DI container compilation.
 	 */
-	public function __construct( protected array $config = [] )
+	public function __construct( protected array $config = [], bool $should_compile = false )
 	{
 		if ( ! isset( self::$service_locator ) ) {
-			self::$service_locator = new ServiceLocator();
+			self::$service_locator = new ServiceLocator( $should_compile );
 		}
 	}
 	/**
-	 * Set the configuration array
+	 * Merge additional values into the configuration array
 	 *
-	 * @param array<string, mixed> $config Configuration array to merge with existing config.
+	 * @param array<string, mixed> $config Configuration values to merge.
 	 */
 	public function setConfig( array $config = [] ): void
 	{
-		$this->config = wp_parse_args(
-			args: $config,
-			defaults: $this->config ?? []
-		);
+		$this->config = wp_parse_args( $config, $this->config );
 	}
 	/**
-	 * Register the configuration array
+	 * Register static configuration into the service container
+	 *
+	 * config.dir and config.url are intentionally excluded here — they are
+	 * dynamic (path changes per environment) and must not be baked into the
+	 * compiled container. They are injected after build() via setService().
 	 *
 	 * @return void
 	 */
@@ -67,20 +69,12 @@ class Main extends Abstracts\Controller
 			$this->config['config.package'] = static::PACKAGE;
 		}
 
-		$this->config = apply_filters(
-			"{$this->config['config.package']}_config",
-			$this->config
+		$static_config = array_diff_key(
+			$this->config,
+			[ 'config.dir' => '', 'config.url' => '' ]
 		);
 
-		self::$service_locator->addDefinitions(
-			definitions: wp_parse_args(
-				args: $this->config,
-				defaults: [
-					'config.dir' => untrailingslashit( plugin_dir_path( __DIR__ ) ),
-					'config.url' => untrailingslashit( plugin_dir_url( __DIR__ ) ),
-				]
-			)
-		);
+		self::$service_locator->addDefinitions( definitions: $static_config );
 	}
 	/**
 	 * Get definitions that should be added to the service container
@@ -97,17 +91,6 @@ class Main extends Abstracts\Controller
 		];
 	}
 	/**
-	 * Register controller definitions in the service container
-	 *
-	 * @return void
-	 */
-	public function registerControllers(): void
-	{
-		self::$service_locator->addDefinitions(
-			definitions: static::getServiceDefinitions()
-		);
-	}
-	/**
 	 * Mount the plugin
 	 *
 	 * @return void
@@ -115,9 +98,17 @@ class Main extends Abstracts\Controller
 	public function mount(): void
 	{
 		$this->registerConfig();
-		$this->registerControllers();
+		
+		self::$service_locator->addDefinitions(
+			definitions: static::getServiceDefinitions()
+		);
 
 		self::$service_locator->build();
+
+		// Inject dynamic path values after build so they are never compiled/cached.
+		// Container::set() overrides at runtime even in a compiled container.
+		self::$service_locator->setService( 'config.dir', $this->config['config.dir'] ?? '' );
+		self::$service_locator->setService( 'config.url', $this->config['config.url'] ?? '' );
 
 		$defs = self::$service_locator->getDefinitions();
 
