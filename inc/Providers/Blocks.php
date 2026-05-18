@@ -17,9 +17,9 @@
 
 namespace Placeholder\Plugin\Providers;
 
-use Placeholder\Plugin\Bmd\WPFramework\Abstracts;
-use Placeholder\Plugin\Bmd\WPFramework\Services\UrlResolver;
-use Placeholder\Plugin\Bmd\WPFramework\Services\FilePathResolver;
+use Bmd\WPFramework\Abstracts;
+use Bmd\WPFramework\Services\UrlResolver;
+use Bmd\WPFramework\Services\FilePathResolver;
 
 /**
  * Service class for blocks

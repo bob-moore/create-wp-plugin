@@ -17,10 +17,10 @@
 
 namespace Placeholder\Plugin\Controllers;
 
-use Placeholder\Plugin\Bmd\WPFramework\Services\ServiceLocator;
-use Placeholder\Plugin\Bmd\WPFramework;
+use Bmd\WPFramework\Services\ServiceLocator;
+use Bmd\WPFramework;
 
-use Placeholder\Plugin\DI\Attribute\Inject;
+use DI\Attribute\Inject;
 
 /**
  * Service Controller Class
@@ -29,7 +29,7 @@ use Placeholder\Plugin\DI\Attribute\Inject;
  * Extends the framework's base service controller with plugin-specific services.
  *
  * @subpackage Controllers
- * @since      1.0.0
+ * @see https://github.com/bob-moore/WP-Framework/blob/main/inc/Controllers/ServiceController.php
  */
 class ServiceController extends WPFramework\Controllers\ServiceController
 {

@@ -13,12 +13,13 @@
 
 namespace Placeholder\Plugin\Context;
 
-use Placeholder\Plugin\Bmd\WPFramework\Context\Admin;
+use Bmd\WPFramework\Context\Admin;
 
 /**
  * Editor context handler
  *
  * @subpackage Context
+ * @see https://github.com/bob-moore/WP-Framework/tree/main/inc/Context
  */
 class Editor extends Admin
 {

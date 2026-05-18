@@ -13,7 +13,7 @@
 
 namespace Placeholder\Plugin\Processors;
 
-use Placeholder\Plugin\Bmd\WPFramework\Abstracts;
+use Bmd\WPFramework\Abstracts;
 
 /**
  * Example block processor class.

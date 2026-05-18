@@ -17,13 +17,14 @@
 namespace Placeholder\Plugin\Controllers;
 
 use Placeholder\Plugin\Context;
-use Placeholder\Plugin\Bmd\WPFramework;
-use Placeholder\Plugin\Bmd\WPFramework\Services\ServiceLocator;
+use Bmd\WPFramework;
+use Bmd\WPFramework\Services\ServiceLocator;
 
 /**
  * Controls the registration and execution of context-specific handlers
  *
  * @subpackage Controllers
+ * @see https://github.com/bob-moore/WP-Framework/blob/main/inc/Controllers/ContextController.php
  */
 class ContextController extends WPFramework\Controllers\ContextController
 {

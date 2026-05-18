@@ -253,6 +253,7 @@ function replacement_map(array $config): array
 		'https://example.com'                    => $config['plugin_uri'],
 		'vendor/{PROJECT}'                       => "{$config['package_vendor']}/{$config['project']}",
 		'{PROJECT}'                              => $config['project'],
+		'"Plugin.php"'                           => "\"{$config['main_file']}\"",
 		'Plugin.php'                             => $config['main_file'],
 	];
 

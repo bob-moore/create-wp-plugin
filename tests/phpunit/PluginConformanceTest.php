@@ -7,9 +7,9 @@
 
 namespace Placeholder\Plugin\PHPUnit;
 
-use Placeholder\Plugin\Bmd\WPFramework\Abstracts;
-use Placeholder\Plugin\Bmd\WPFramework\Interfaces;
-use Placeholder\Plugin\Bmd\WPFramework\Main as FrameworkMain;
+use Bmd\WPFramework\Abstracts;
+use Bmd\WPFramework\Interfaces;
+use Bmd\WPFramework\Main as FrameworkMain;
 use Placeholder\Plugin\Context;
 use Placeholder\Plugin\Controllers;
 use Placeholder\Plugin\Main;

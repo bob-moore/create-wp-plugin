@@ -13,15 +13,15 @@
 
 namespace Placeholder\Plugin;
 
-use Placeholder\Plugin\Bmd\WPFramework;
-use Placeholder\Plugin\Bmd\WPFramework\Services\ServiceLocator;
+use Bmd\WPFramework;
+use Bmd\WPFramework\Services\ServiceLocator;
 
 /**
  * Main App Class
  *
  * Defines the service container and mounts the plugin.
  *
- * @subpackage Traits
+ * @see https://github.com/bob-moore/WP-Framework/blob/main/inc/Main.php
  */
 class Main extends WPFramework\Main
 {

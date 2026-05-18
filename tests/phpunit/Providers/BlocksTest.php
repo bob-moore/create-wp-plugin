@@ -7,8 +7,8 @@
 
 namespace Placeholder\Plugin\PHPUnit\Providers;
 
-use Placeholder\Plugin\Bmd\WPFramework\Services\FilePathResolver;
-use Placeholder\Plugin\Bmd\WPFramework\Services\UrlResolver;
+use Bmd\WPFramework\Services\FilePathResolver;
+use Bmd\WPFramework\Services\UrlResolver;
 use Placeholder\Plugin\Providers\Blocks;
 use WP_Mock;
 use WP_Mock\Tools\TestCase;

@@ -19,10 +19,10 @@
 namespace Placeholder\Plugin\Controllers;
 
 use Placeholder\Plugin\Providers;
-use Placeholder\Plugin\Bmd\WPFramework;
-use Placeholder\Plugin\Bmd\WPFramework\Services\ServiceLocator;
+use Bmd\WPFramework;
+use Bmd\WPFramework\Services\ServiceLocator;
 
-use Placeholder\Plugin\DI\Attribute\Inject;
+use DI\Attribute\Inject;
 
 /**
  * Provider Controller Class
@@ -31,7 +31,7 @@ use Placeholder\Plugin\DI\Attribute\Inject;
  * Extends the framework's base provider controller with plugin-specific providers.
  *
  * @subpackage Controllers
- * @since      1.0.0
+ * @see https://github.com/bob-moore/WP-Framework/blob/main/inc/Controllers/ProviderController.php
  */
 class ProviderController extends WPFramework\Controllers\ProviderController
 {

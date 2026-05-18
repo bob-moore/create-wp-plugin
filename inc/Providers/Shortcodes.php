@@ -14,7 +14,7 @@
 
 namespace Placeholder\Plugin\Providers;
 
-use Placeholder\Plugin\Bmd\WPFramework\Abstracts;
+use Bmd\WPFramework\Abstracts;
 
 /**
  * Registers example shortcodes.

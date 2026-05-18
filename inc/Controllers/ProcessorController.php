@@ -18,10 +18,10 @@
 namespace Placeholder\Plugin\Controllers;
 
 use Placeholder\Plugin\Processors;
-use Placeholder\Plugin\Bmd\WPFramework\Services\ServiceLocator;
-use Placeholder\Plugin\Bmd\WPFramework\Abstracts;
+use Bmd\WPFramework\Services\ServiceLocator;
+use Bmd\WPFramework\Abstracts;
 
-use Placeholder\Plugin\DI\Attribute\Inject;
+use DI\Attribute\Inject;
 
 /**
  * Processor Controller Class
