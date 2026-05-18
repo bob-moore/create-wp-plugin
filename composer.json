@@ -9,7 +9,7 @@
         "optimize-autoloader": false,
         "vendor-dir": "vendor",
         "platform": {
-            "php": "8.1"
+            "php": "8.2"
         },
         "allow-plugins": {
             "composer/installers": true,
@@ -37,6 +37,7 @@
         "10up/wp_mock": "*"
     },
     "scripts": {
+        "build-release": "node scripts/build-plugin-release.mjs",
         "create-plugin": "@php scripts/create-plugin.php",
         "phpstan": "./vendor/bin/phpstan analyze -c ./tests/phpstan.neon --memory-limit=2048M",
         "phpsniff": "./vendor/bin/phpcs ./inc -v --standard='./tests/phpcs.xml'",
@@ -58,7 +59,11 @@
             ],
             "composerjson": "composer-deps.json",
             "composerlock": "composer-deps.lock",
-            "autorun": true
+            "autorun": false,
+            "source-namespace-patches": [
+                "Bmd\\WPFramework",
+                "DI\\"
+            ]
         }
     }
 }

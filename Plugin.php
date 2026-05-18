@@ -29,19 +29,41 @@ namespace Placeholder\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
-try {
-	require_once plugin_dir_path( __FILE__ ) . 'vendor/scoped/autoload.php';
-	require_once plugin_dir_path( __FILE__ ) . 'vendor/scoped/scoper-autoload.php';
-	require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+/**
+ * Autoload dependencies and initialize the plugin.
+ *
+ * This function is hooked to the 'plugins_loaded' action to ensure that
+ * if included via composer, the loader doesn't fire more than once.
+ *
+ * @return void
+ */
+function burn_baby_burn(): void
+{
+	try {
+		$scoped_autoload   = plugin_dir_path( __FILE__ ) . 'vendor/scoped/autoload.php';
+		$scoper_autoload   = plugin_dir_path( __FILE__ ) . 'vendor/scoped/scoper-autoload.php';
+		$composer_autoload = plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
-	$config = [
-		'config.package' => Main::PACKAGE,
-		'config.dir'     => plugin_dir_path( __FILE__ ),
-		'config.url'     => plugin_dir_url( __FILE__ ),
-	];
+		if ( is_file( $scoped_autoload ) && is_file( $scoper_autoload ) ) {
+			require_once $scoped_autoload;
+			require_once $scoper_autoload;
+		}
 
-	$plugin = new Main( $config );
-	$plugin->mount();
-} catch ( \Error $e ) {
-	error_log( $e->getMessage() );
+		require_once $composer_autoload;
+
+		$config = [
+			'config.dir'     => plugin_dir_path( __FILE__ ),
+			'config.url'     => plugin_dir_url( __FILE__ ),
+		];
+
+		$plugin = new Main( $config );
+		$plugin->mount();
+
+	} catch ( \Error $e ) {
+		error_log( $e->getMessage() );
+	}
+}
+
+if ( ! has_action( 'plugins_loaded', __NAMESPACE__ . '\\burn_baby_burn' ) ) {
+	add_action( 'plugins_loaded', __NAMESPACE__ . '\\burn_baby_burn' );
 }
