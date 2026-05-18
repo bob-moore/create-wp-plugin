@@ -17,10 +17,11 @@
 
 namespace Placeholder\Plugin\Controllers;
 
-use Placeholder\Plugin\Processors;
-use Bmd\WPFramework\Services\ServiceLocator;
-use Bmd\WPFramework\Abstracts;
-
+use Placeholder\Plugin\ {
+	Processors,
+	Services\ServiceLocator,
+	Abstracts
+};
 use DI\Attribute\Inject;
 
 /**

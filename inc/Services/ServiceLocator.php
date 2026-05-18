@@ -1,0 +1,269 @@
+<?php
+/**
+ * Service Locator
+ *
+ * PHP Version 8.2
+ *
+ * @package Placeholder_Plugin
+ * @author  Bob Moore <bob@bobmoore.dev>
+ * @license GPL-2.0+ <http://www.gnu.org/licenses/gpl-2.0.txt>
+ * @link    https://www.bobmoore.dev
+ * @since   1.0.0
+ */
+
+namespace Placeholder\Plugin\Services;
+
+use Placeholder\Plugin\Interfaces;
+use DI\ {
+	Container,
+	ContainerBuilder,
+	DependencyException,
+	NotFoundException,
+	Definition\Reference,
+	Definition\StringDefinition,
+	Definition\ValueDefinition,
+	Definition\Helper
+};
+/**
+ * Builder for Service Containers
+ *
+ * Handles dependency injection container management and service resolution
+ *
+ * @subpackage Services
+ */
+class ServiceLocator
+{
+	/**
+	 * PHP\DI Service Container.
+	 *
+	 * @var Container
+	 * @see https://php-di.org/doc/container.html
+	 */
+	private Container $container;
+	/**
+	 * PHP\DI Container Builder.
+	 *
+	 * @var ContainerBuilder<Container>
+	 * @see https://php-di.org/doc/container-configuration.html
+	 */
+	private ContainerBuilder $container_builder;
+	/**
+	 * Array of service definitions.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private array $service_definitions = [];
+	/**
+	 * Initializes a new instance of the ServiceLocator class.
+	 */
+	public function __construct()
+	{
+		$this->container_builder = new ContainerBuilder();
+		$this->container_builder->useAutowiring( \true );
+		$this->container_builder->useAttributes( \true );
+	}
+	/**
+	 * Add an array of service definitions to the container.
+	 *
+	 * @param array<string, mixed> $definitions : array of service definitions.
+	 *
+	 * @return void
+	 */
+	public function addDefinitions( array $definitions ): void
+	{
+		foreach ( $definitions as $key => $definition ) {
+			$this->addDefinition( $key, $definition );
+		}
+	}
+	/**
+	 * Get definitions that should be added to the service container
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function getDefinitions(): array
+	{
+		return $this->service_definitions;
+	}
+	/**
+	 * Build the container
+	 *
+	 * @param bool $should_compile Whether to enable compilation for the container. Defaults to false.
+	 *
+	 * @return void
+	 */
+	public function build( $should_compile = false ): void
+	{
+		$this->container_builder->addDefinitions( $this->service_definitions );
+
+		if ( $should_compile ) {
+			$this->container_builder->enableCompilation( dirname( __DIR__ ) . '/cache' );
+		}
+		$this->container = $this->container_builder->build();
+	}
+	/**
+	 * Add a service definition to the collection of definitions.
+	 *
+	 * @param string $service : name of the service.
+	 * @param mixed  $definition : service definition.
+	 *
+	 * @return void
+	 */
+	public function addDefinition( string $service, mixed $definition ): void
+	{
+		$extended_definitions = [];
+		if ( is_object( $definition ) && is_a( $definition, Helper\AutowireDefinitionHelper::class ) ) {
+			$class_name = $this->getAutoWiredClassName( $definition, $service );
+			if ( is_a( $class_name, Interfaces\Mountable::class, \true ) ) {
+				$definition->method( 'mount' );
+			}
+			if ( is_a( $class_name, Interfaces\Controller::class, \true ) && empty( array_column( $this->service_definitions, $service ) ) ) {
+				$extended_definitions = $class_name::getServiceDefinitions();
+			}
+		}
+		$this->service_definitions[ $service ] = $definition;
+		if ( ! empty( $extended_definitions ) ) {
+			$this->addDefinitions( $extended_definitions );
+		}
+	}
+	/**
+	 * Get the class name of an auto wired definition
+	 *
+	 * @param Helper\AutowireDefinitionHelper $definition : service definition to check.
+	 * @param string                          $service : the service name.
+	 *
+	 * @return string
+	 */
+	protected function getAutoWiredClassName( Helper\AutowireDefinitionHelper $definition, string $service ): string
+	{
+		$definition_object = $definition->getDefinition( $service );
+		$class_name = $definition_object->getClassName();
+		return $class_name;
+	}
+	/**
+	 * Locate a specific service
+	 *
+	 * @param string $service : name of service to locate.
+	 *
+	 * @return mixed
+	 */
+	public function getService( string $service ): mixed
+	{
+		if ( ! isset( $this->container ) ) {
+			return new \WP_Error( 'no_container_found', 'No container found' );
+		}
+		try {
+			return $this->container->get( $service );
+		} catch ( DependencyException | NotFoundException $e ) {
+			return new \WP_Error( $e->getMessage() );
+		}
+	}
+	/**
+	 * Mount a service
+	 *
+	 * @param string $service : name of service to mount.
+	 *
+	 * @return void
+	 */
+	public function mountService( string $service ): void
+	{
+		$this->getService( $service );
+	}
+	/**
+	 * Resolve a new instance of a service
+	 *
+	 * @param string       $service : name of the service to make.
+	 * @param array<mixed> $args : array of arguments to pass into the service constructor.
+	 *
+	 * @return \WP_Error|null
+	 */
+	public function makeService( string $service, array $args = [] ): \WP_Error|null
+	{
+		if ( ! isset( $this->container ) ) {
+			return new \WP_Error( 'no_container_found', 'No container found' );
+		}
+		return $this->container->make( $service, $args );
+	}
+	/**
+	 * Set a service in the container.
+	 *
+	 * @param string $service : service name.
+	 * @param mixed  $value : service value.
+	 *
+	 * @return void
+	 */
+	public function setService( string $service, $value ): void
+	{
+		$this->container->set( $service, $value );
+	}
+	/**
+	 * Wrapper for DI autowire function
+	 *
+	 * @param string|null $class_name : name of service to auto wire.
+	 *
+	 * @return Helper\AutowireDefinitionHelper
+	 */
+	public static function autowire( string|null $class_name = null ): Helper\AutowireDefinitionHelper
+	{
+		return \DI\autowire( $class_name );
+	}
+	/**
+	 * Helper for defining an object.
+	 *
+	 * @param string|null $class_name Class name of the object.
+	 */
+	public static function create( string|null $class_name = null ): Helper\DefinitionHelper
+	{
+		return \DI\create( $class_name );
+	}
+	/**
+	 * Wrapper for DI get function
+	 *
+	 * @param string $class_name : name of service to retrieve.
+	 *
+	 * @return Reference
+	 */
+	public static function get( string $class_name ): Reference
+	{
+		return \DI\get( $class_name );
+	}
+	/**
+	 * Helper for defining a container entry using a factory function/callable.
+	 *
+	 * @param callable|array<mixed>|string $factory : The factory callable.
+	 */
+	public static function factory( $factory ): Helper\DefinitionHelper
+	{
+		return \DI\factory( $factory );
+	}
+	/**
+	 * Decorate the previous definition using a callable.
+	 *
+	 * @param callable|array<mixed>|string $decorator : The decorator callable.
+	 */
+	public static function decorate( $decorator ): Helper\DefinitionHelper
+	{
+		return \DI\decorate( $decorator );
+	}
+	/**
+	 * Helper for string expressions.
+	 *
+	 * @param string $expression : A string expression with {} placeholders.
+	 *
+	 * @return StringDefinition
+	 */
+	public static function string( string $expression ): StringDefinition
+	{
+		return \DI\string( $expression );
+	}
+	/**
+	 * Helper for defining a value.
+	 *
+	 * @param mixed $value : value definition.
+	 *
+	 * @return ValueDefinition
+	 */
+	public static function value( mixed $value ): ValueDefinition
+	{
+		return \DI\value( $value );
+	}
+}

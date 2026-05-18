@@ -2,13 +2,14 @@
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 
 const rootDir = process.cwd();
-const releaseRoot = path.join( rootDir, '.release' );
 const composerJson = readJson( path.join( rootDir, 'composer.json' ) );
-const pluginFolder = path.basename( rootDir );
+const pluginFolder = getPluginFolderName();
+const releaseRoot = path.join( os.tmpdir(), `${ pluginFolder }-release` );
 const stagingDir = path.join( releaseRoot, pluginFolder );
 const zipName = `${ pluginFolder }.zip`;
 const zipPath = path.join( rootDir, zipName );
@@ -16,6 +17,13 @@ const zipPath = path.join( rootDir, zipName );
 const distributablePaths = composerJson.extra?.[ 'plugin-release' ]?.files ?? [];
 
 main();
+
+function getPluginFolderName() {
+	const packageName = composerJson.name ?? path.basename( rootDir );
+	const packageSlug = packageName.split( '/' ).pop() ?? packageName;
+
+	return packageSlug.replaceAll( /[^a-z0-9._-]/gi, '-' );
+}
 
 function main() {
 	cleanDirectory( releaseRoot );
@@ -27,6 +35,7 @@ function main() {
 
 	runWpifyScoper();
 	patchPluginSourceForScopedRuntime();
+	rebuildCompiledContainerCache();
 	removeBuildOnlyFiles();
 	createZip();
 
@@ -61,11 +70,15 @@ function writeReleaseComposerDepsJson() {
 		config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ];
 	}
 
+	// Merge local composer-deps.json so packages listed there are scoped into
+	// the release without being public Composer dependencies.
+	const localDeps = readJsonIfExists( path.join( rootDir, 'composer-deps.json' ) );
+
 	const deps = {
 		name: `${ composerJson.name }-dependencies`,
 		description: `Dependencies for ${ composerJson.name }`,
 		config,
-		require: { ...( composerJson.require ?? {} ) },
+		require: { ...( composerJson.require ?? {} ), ...( localDeps?.require ?? {} ) },
 	};
 
 	if ( composerJson[ 'minimum-stability' ] !== undefined ) {
@@ -149,8 +162,37 @@ function patchPluginSourceForScopedRuntime() {
 	}
 }
 
+function rebuildCompiledContainerCache() {
+	const cacheDir = path.join( stagingDir, 'cache' );
+	cleanDirectory( cacheDir );
+
+	const scopedAutoload = path.join( stagingDir, 'vendor/scoped/autoload.php' );
+	const scoperAutoload = path.join( stagingDir, 'vendor/scoped/scoper-autoload.php' );
+	const composerAutoload = path.join( stagingDir, 'vendor/autoload.php' );
+	const pluginUrl = `https://example.invalid/wp-content/plugins/${ pluginFolder }/`;
+
+	const phpCode = `
+		$root = ${ phpString( stagingDir ) };
+		$plugin_url = ${ phpString( pluginUrl ) };
+
+		require_once ${ phpString( scopedAutoload ) };
+		require_once ${ phpString( scoperAutoload ) };
+		require_once ${ phpString( composerAutoload ) };
+
+		$controller = new \\Bmd\\ButtonBlockEnhancements\\Controller(
+			$plugin_url,
+			$root . '/',
+			true
+		);
+	`;
+
+	run( 'php', [ '-r', phpCode ], {
+		label: 'rebuild compiled container cache',
+	} );
+}
+
 function removeBuildOnlyFiles() {
-	// Strip require-dev and composerjson (build-only) from the distributed composer.json.
+	// Strip build-only Composer files from the distribution.
 	const composerJsonPath = path.join( stagingDir, 'composer.json' );
 	const releaseComposerJson = readJson( composerJsonPath );
 	delete releaseComposerJson[ 'require-dev' ];
@@ -160,7 +202,7 @@ function removeBuildOnlyFiles() {
 	writeJson( composerJsonPath, releaseComposerJson );
 
 	// Remove build-only files not needed in the distribution.
-	for ( const relativePath of [ 'composer-deps.json', 'composer.lock' ] ) {
+	for ( const relativePath of [ 'composer-deps.json', 'composer-deps.lock', 'composer.json', 'composer.lock' ] ) {
 		fs.rmSync( path.join( stagingDir, relativePath ), { force: true } );
 	}
 }
@@ -184,6 +226,10 @@ function cleanDirectory( directory ) {
 
 function readJson( filePath ) {
 	return JSON.parse( fs.readFileSync( filePath, 'utf8' ) );
+}
+
+function readJsonIfExists( filePath ) {
+	return fs.existsSync( filePath ) ? readJson( filePath ) : null;
 }
 
 function writeJson( filePath, value ) {

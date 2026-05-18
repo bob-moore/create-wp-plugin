@@ -1,0 +1,69 @@
+<?php
+/**
+ * Module definition file
+ *
+ * PHP Version 8.2
+ *
+ * @package Placeholder_Plugin
+ * @author  Bob Moore <bob@bobmoore.dev>
+ * @license GPL-2.0+ <http://www.gnu.org/licenses/gpl-2.0.txt>
+ * @link    https://www.bobmoore.dev
+ * @since   1.0.0
+ */
+
+namespace Placeholder\Plugin\Abstracts;
+
+use Placeholder\Plugin\ {
+	Interfaces,
+	Helpers
+};
+use DI\Attribute\Inject;
+/**
+ * Abstract Module class
+ *
+ * A module is the most basic type of class in the plugin. It is a class that
+ * belongs to the package (plugin), and shares the plugin's namespace and package definition.
+ *
+ * @subpackage Abstracts
+ */
+abstract class Module implements Interfaces\Module
+{
+	/**
+	 * Package this service belongs to
+	 *
+	 * @var string
+	 */
+	#[Inject( 'config.package' )]
+	protected string $package = '';
+	/**
+	 * Public constructor
+	 *
+	 * @param string $package : optional package name to set.
+	 */
+	public function __construct( string $package = '' )
+	{
+		if ( ! empty( $package ) ) {
+			$this->setPackage( $package );
+		}
+	}
+	/**
+	 * Setter for package field
+	 *
+	 * @param string $package : string to set package to, transformed to underscore separated & lowercase.
+	 *
+	 * @return void
+	 */
+	public function setPackage( string $package ): void
+	{
+		$this->package = Helpers::slugify( $package );
+	}
+	/**
+	 * Getter for package field
+	 *
+	 * @return string
+	 */
+	public function getPackage(): string
+	{
+		return $this->package;
+	}
+}

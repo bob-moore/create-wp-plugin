@@ -14,10 +14,10 @@
 
 namespace Placeholder\Plugin\Providers;
 
-use Bmd\WPFramework\Abstracts;
+use Placeholder\Plugin\Abstracts;
 
 /**
- * Service class for router actions
+ * Provider class for taxonomy registration
  *
  * @subpackage Providers
  */

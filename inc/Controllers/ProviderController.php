@@ -18,41 +18,49 @@
 
 namespace Placeholder\Plugin\Controllers;
 
-use Placeholder\Plugin\Providers;
-use Bmd\WPFramework;
-use Bmd\WPFramework\Services\ServiceLocator;
-
+use Placeholder\Plugin\ {
+	Providers,
+	Services\ServiceLocator,
+	Abstracts
+};
 use DI\Attribute\Inject;
 
 /**
  * Provider Controller Class
  *
  * Controls the registration and execution of WordPress functionality providers.
- * Extends the framework's base provider controller with plugin-specific providers.
  *
  * @subpackage Controllers
- * @see https://github.com/bob-moore/WP-Framework/blob/main/inc/Controllers/ProviderController.php
  */
-class ProviderController extends WPFramework\Controllers\ProviderController
+class ProviderController extends Abstracts\Controller
 {
 	/**
 	 * Get service container definitions
-	 *
-	 * @since  1.0.0
-	 * @access public
 	 *
 	 * @return array<string, mixed> Array of service definitions.
 	 */
 	public static function getServiceDefinitions(): array
 	{
-		return array_merge(
-			parent::getServiceDefinitions(),
-			[
-				Providers\Blocks::class     => ServiceLocator::autowire(),
-				Providers\Shortcodes::class => ServiceLocator::autowire(),
-				Providers\Taxonomies::class => ServiceLocator::autowire(),
-			]
-		);
+		return [
+			Providers\Context::class    => ServiceLocator::autowire(),
+			Providers\Blocks::class     => ServiceLocator::autowire(),
+			Providers\Shortcodes::class => ServiceLocator::autowire(),
+			Providers\Taxonomies::class => ServiceLocator::autowire(),
+		];
+	}
+	/**
+	 * Mount Context Provider
+	 *
+	 * @param Providers\Context $provider Instance of Context provider.
+	 *
+	 * @return void
+	 */
+	#[Inject]
+	public function mountContext( Providers\Context $provider ): void
+	{
+		add_action( 'wp', [ $provider, 'dispatch' ], 4 );
+		add_action( 'current_screen', [ $provider, 'dispatch' ], 4 );
+		add_action( 'login_init', [ $provider, 'dispatch' ], 4 );
 	}
 
 	/**

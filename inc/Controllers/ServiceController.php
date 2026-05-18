@@ -17,38 +17,32 @@
 
 namespace Placeholder\Plugin\Controllers;
 
-use Bmd\WPFramework\Services\ServiceLocator;
-use Bmd\WPFramework;
-
-use DI\Attribute\Inject;
-
+use Placeholder\Plugin\ {
+	Services\ServiceLocator,
+	Services,
+	Abstracts
+};
 /**
  * Service Controller Class
  *
  * Controls the registration and execution of core application services.
- * Extends the framework's base service controller with plugin-specific services.
  *
  * @subpackage Controllers
- * @see https://github.com/bob-moore/WP-Framework/blob/main/inc/Controllers/ServiceController.php
  */
-class ServiceController extends WPFramework\Controllers\ServiceController
+class ServiceController extends Abstracts\Controller
 {
 	/**
 	 * Get service container definitions
-	 *
-	 * Adds plugin-specific services (Compiler, PostMeta) on top of the
-	 * base framework services registered by the parent.
-	 *
-	 * @since  1.0.0
-	 * @access public
 	 *
 	 * @return array<string, mixed> Array of service definitions.
 	 */
 	public static function getServiceDefinitions(): array
 	{
-		return array_merge(
-			parent::getServiceDefinitions(),
-			[]
-		);
+		return [
+			Services\ScriptLoader::class    => ServiceLocator::autowire(),
+			Services\StyleLoader::class     => ServiceLocator::autowire(),
+			Services\FilePathResolver::class => ServiceLocator::autowire(),
+			Services\UrlResolver::class     => ServiceLocator::autowire(),
+		];
 	}
 }

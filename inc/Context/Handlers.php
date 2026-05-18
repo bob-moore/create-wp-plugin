@@ -22,7 +22,13 @@ namespace Placeholder\Plugin\Context;
  */
 enum Handlers: string
 {
-	/** EDITOR page handler */
+	/** WordPress admin area handler */
+	case ADMIN = Admin::class;
+	/** General frontend handler */
+	case FRONTEND = Frontend::class;
+	/** Login page handler */
+	case LOGIN = Login::class;
+	/** Block editor handler */
 	case EDITOR = Editor::class;
 	/** No specific handler */
 	case NONE = '';

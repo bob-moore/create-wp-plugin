@@ -16,23 +16,23 @@
 
 namespace Placeholder\Plugin\Controllers;
 
-use Placeholder\Plugin\Context;
-use Bmd\WPFramework;
-use Bmd\WPFramework\Services\ServiceLocator;
-
+use Placeholder\Plugin\ {
+	Services\ServiceLocator,
+	Main,
+	Context,
+	Interfaces,
+	Abstracts,
+	Helpers
+};
 /**
  * Controls the registration and execution of context-specific handlers
  *
  * @subpackage Controllers
- * @see https://github.com/bob-moore/WP-Framework/blob/main/inc/Controllers/ContextController.php
  */
-class ContextController extends WPFramework\Controllers\ContextController
+class ContextController extends Abstracts\Controller
 {
 	/**
 	 * Get definitions for the service container
-	 *
-	 * Merges framework base handlers (Frontend, Admin, Login) with the full
-	 * set of plugin-specific context handlers.
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -45,27 +45,97 @@ class ContextController extends WPFramework\Controllers\ContextController
 				$context_handlers[ $handler->value ] = ServiceLocator::autowire();
 				$context_handlers[ $handler->name ]  = $handler->value;
 			}
-		};
+		}
 
-		return array_merge(
-			parent::getServiceDefinitions(),
-			$context_handlers
-		);
+		return $context_handlers;
 	}
-
 	/**
-	 * Mount admin-specific assets and handlers
-	 *
-	 * @param WPFramework\Context\Admin $handler Admin context handler instance.
+	 * Mount WordPress actions for context handling
 	 *
 	 * @return void
 	 */
-	public function mountAdminHandler( WPFramework\Context\Admin $handler ): void
+	public function mountActions(): void
 	{
-		parent::mountAdminHandler( $handler );
+		add_action( "{$this->package}_dispatch_context_handler", [ $this, 'loadContextHandler' ] );
+		add_action( "{$this->package}_mount_context", [ $this, 'mountContextHandler' ] );
+	}
+	/**
+	 * Load a context handler by type
+	 *
+	 * @param array<int, string> $contexts Context name chain to resolve, most-specific first.
+	 *
+	 * @return void
+	 */
+	public function loadContextHandler( array $contexts ): void
+	{
+		foreach ( $contexts as $context ) {
+			$handler_class = Main::locateService( service_name: $context );
+
+			if ( ! Helpers::implements( instance_or_class: $handler_class, interface_class: Interfaces\ContextHandler::class ) ) {
+				continue;
+			}
+
+			do_action(
+				"{$this->package}_mount_context",
+				Main::locateService( service_name: $handler_class )
+			);
+			break;
+		}
+	}
+	/**
+	 * Mount the appropriate context handler based on type
+	 *
+	 * @param Interfaces\ContextHandler $handler The context handler to mount.
+	 *
+	 * @return void
+	 */
+	public function mountContextHandler( Interfaces\ContextHandler $handler ): void
+	{
+		if ( $handler instanceof Context\Frontend ) {
+			$this->mountFrontendHandler( handler: $handler );
+		}
+		if ( $handler instanceof Context\Admin ) {
+			$this->mountAdminHandler( handler: $handler );
+		}
+		if ( $handler instanceof Context\Login ) {
+			$this->mountLoginHandler( handler: $handler );
+		}
+	}
+	/**
+	 * Mount frontend-specific assets and handlers
+	 *
+	 * @param Context\Frontend $handler Frontend context handler instance.
+	 *
+	 * @return void
+	 */
+	public function mountFrontendHandler( Context\Frontend $handler ): void
+	{
+		add_action( 'wp_enqueue_scripts', [ $handler, 'enqueueAssets' ] );
+	}
+	/**
+	 * Mount admin-specific assets and handlers
+	 *
+	 * @param Context\Admin $handler Admin context handler instance.
+	 *
+	 * @return void
+	 */
+	public function mountAdminHandler( Context\Admin $handler ): void
+	{
+		add_action( 'admin_enqueue_scripts', [ $handler, 'enqueueAssets' ] );
 
 		if ( $handler instanceof Context\Editor ) {
 			add_action( 'enqueue_block_editor_assets', [ $handler, 'enqueueEditorAssets' ] );
 		}
+	}
+	/**
+	 * Mount login-specific assets and handlers
+	 *
+	 * @param Context\Login $handler Login context handler instance.
+	 *
+	 * @return void
+	 */
+	public function mountLoginHandler( Context\Login $handler ): void
+	{
+		add_action( 'login_enqueue_scripts', [ $handler, 'enqueueAssets' ] );
 	}
 }
